@@ -1,0 +1,53 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$cmd_duration\
+$line_break\
+$python\
+$character"""
+
+[directory]
+style = "bold fg:#798186"
+
+truncation_length = 4
+truncate_to_repo = false
+
+[character]
+success_symbol = "[❯](bold fg:#9fa5a9)"
+error_symbol   = "[❯](bold fg:#de6145)"
+vimcmd_symbol  = "[❮](bold fg:#aeaeae)"
+
+[git_branch]
+format = "[$branch]($style)"
+style  = "fg:#565d60"
+
+[git_status]
+format     = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](fg:#d9dbdc) ($ahead_behind$stashed)]($style)"
+style      = "fg:#707070"
+conflicted = ""
+untracked  = ""
+modified   = ""
+staged     = ""
+renamed    = ""
+deleted    = ""
+stashed    = "≡"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style  = "fg:#565d60"
+
+[cmd_duration]
+format = "[$duration]($style) "
+style  = "fg:#9fa5a9"
+
+[python]
+format           = "[$virtualenv]($style) "
+style            = "fg:#565d60"
+detect_extensions = []
+detect_files      = []
