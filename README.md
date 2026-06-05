@@ -21,9 +21,6 @@ sudo pacman -S git base-devel && git clone https://aur.archlinux.org/yay.git && 
 
 # driver
 sudo pacman -S nvidia nvidia-utils nvidia-settings libva-nvidia-driver
-
-# Wayland
-sudo pacman -S hyprland wayland wayland-protocols xorg-xwayland qt5-wayland qt6-wayland
 ```
 
 ---
@@ -46,6 +43,7 @@ yay -S \
     ffmpegthumbnailer \
     grim \
     hyprlock \
+    hyprland \
     hypridle \
     hyprsunset \
     jq \
@@ -55,7 +53,6 @@ yay -S \
     mako \
     networkmanager \
     nm-connection-editor \
-    oh-my-zsh-git \
     pipewire \
     poppler \
     playerctl \
@@ -65,10 +62,11 @@ yay -S \
     polkit-kde-agent \
     papirus-icon-theme \
     qutebrowser \
+    qt5-wayland \
+    qt6-wayland \
     ripgrep \
     rofi-wayland \
     slurp \
-    starship \
     tmux \
     ttf-jetbrains-mono-nerd \
     unar \
@@ -81,8 +79,8 @@ yay -S \
     zsh \
     zoxide \
     zsh-completions \
-    zsh-autosuggestions-git \
-    zsh-syntax-highlighting-git \    
+    zsh-autosuggestions \
+    zsh-syntax-highlighting \
 ```
 
 ---
