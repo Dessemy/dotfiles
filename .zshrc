@@ -1,47 +1,75 @@
-export ZSH="$HOME/.oh-my-zsh"
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
-ZSH_THEME=""
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
-fastfetch
+if [ ! -d "$ZINIT_HOME" ]; then
+   mkdir -p "$(dirname $ZINIT_HOME)"
+   git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
 
-plugins=(
-  git
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-  zsh-completions
-  archlinux
-  sudo
-  dirhistory
-  colored-man-pages
-)
+# Source/Load zinit
+source "${ZINIT_HOME}/zinit.zsh"
 
-source $ZSH/oh-my-zsh.sh
+# Add in Powerlevel10k
+zinit ice depth=1; zinit light romkatv/powerlevel10k
 
-eval "$(starship init zsh)"
+# Add in zsh plugins
+zinit light zsh-users/zsh-syntax-highlighting
+zinit light zsh-users/zsh-completions
+zinit light zsh-users/zsh-autosuggestions
+zinit light Aloxaf/fzf-tab
 
-export EDITOR="nvim"
-export VISUAL="nvim"
-export BROWSER="zen-browser"
-export TERMINAL="kitty"
-export PATH="$HOME/.local/bin:$PATH"
+# Add in snippets
+zinit snippet OMZL::git.zsh
+zinit snippet OMZP::git
+zinit snippet OMZP::sudo
+zinit snippet OMZP::archlinux
+zinit snippet OMZP::aws
+zinit snippet OMZP::kubectl
+zinit snippet OMZP::kubectx
+zinit snippet OMZP::command-not-found
 
-alias reload-hypr="hyprctl reload"
+# Load completions
+autoload -Uz compinit && compinit
 
-alias ls="eza --icons"
-alias ll="eza -lah --icons --git"
-alias la="ls -A"
-alias tree="eza --tree --icons"
-alias grep="grep --color=auto"
-alias cat="bat"
+zinit cdreplay -q
 
-alias ..="cd .."
-alias ...="cd ../.."
-alias ....="cd ../../.."
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-eval "$(zoxide init zsh)"
-alias cd="z"
+# Keybindings
+bindkey -e
+bindkey '^p' history-search-backward
+bindkey '^n' history-search-forward
+bindkey '^[w' kill-region
 
-autoload -U compinit && compinit
+# History
+HISTSIZE=5000
+HISTFILE=~/.zsh_history
+SAVEHIST=$HISTSIZE
+HISTDUP=erase
+setopt appendhistory
+setopt sharehistory
+setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
+setopt hist_ignore_dups
+setopt hist_find_no_dups
 
-source /usr/share/fzf/key-bindings.zsh
-source /usr/share/fzf/completion.zsh
+# Completion styling
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' menu no
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
+zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
+
+# Aliases
+alias ls='ls --color'
+alias vim='nvim'
+alias c='clear'
+
+# Shell integrations
+eval "$(fzf --zsh)"
+eval "$(zoxide init --cmd cd zsh)"
