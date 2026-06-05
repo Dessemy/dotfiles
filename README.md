@@ -18,9 +18,6 @@
 
 ```bash
 sudo pacman -S git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
-
-# driver
-sudo pacman -S nvidia nvidia-utils nvidia-settings libva-nvidia-driver
 ```
 
 ---
@@ -50,7 +47,12 @@ yay -S \
     kitty \
     libnotify \
     mako \
+    neovim \
+    nwg-look \
     networkmanager \
+    nvidia-utils \
+    nvidia-settings \
+    nvidia-open-dkms \
     nm-connection-editor \
     pipewire \
     poppler \
@@ -59,16 +61,15 @@ yay -S \
     pipewire-alsa \
     pipewire-pulse \
     polkit-kde-agent \
-    papirus-icon-theme \
     qutebrowser \
     qt5-wayland \
     qt6-wayland \
     ripgrep \
     rofi-wayland \
     slurp \
+    starship \
     tmux \
     ttf-jetbrains-mono-nerd \
-    unar \
     waybar \
     wireplumber \
     wl-clipboard \
@@ -76,9 +77,6 @@ yay -S \
     xdg-desktop-portal-hyprland \
     zsh \
     zoxide \
-    zsh-completions \
-    zsh-autosuggestions \
-    zsh-syntax-highlighting \
 ```
 
 ---
