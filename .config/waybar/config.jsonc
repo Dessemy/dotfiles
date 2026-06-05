@@ -1,0 +1,169 @@
+{
+    "position": "top",
+    "layer": "top",
+    "margin-top": 8,
+    "margin-bottom": 0,
+    "margin-left": 8,
+    "margin-right": 8,
+    "spacing": 10,
+    "fixed-center": true,
+    "exclusive": true,
+
+    "modules-left": [
+        "hyprland/workspaces",
+        "wlr/taskbar"
+    ],
+
+    "modules-center": [
+        "clock"
+    ],
+
+    "modules-right": [
+        "group/hardware",
+        "pulseaudio",
+        "bluetooth",
+        "network",
+        "battery",
+        "custom/exit"
+    ],
+
+    "hyprland/workspaces": {
+        "on-click": "activate",
+        "active-only": false,
+        "all-outputs": true,
+        "format": "{icon}",
+        "format-icons": {
+            "urgent":  "",
+            "active":  "",
+            "default": ""
+        }
+    },
+
+    "wlr/taskbar": {
+        "format": "{icon}",
+        "icon-size": 18,
+        "tooltip-format": "{title}",
+        "on-click": "activate",
+        "on-click-middle": "close"
+    },
+
+    "clock": {
+        "interval": 1,
+        "format": "{:%I:%M %p}",
+        "format-alt": "{:%A, %B %d - %H:%M}",
+        "tooltip-format": "<big>{calendar}</big>",
+        "calendar": {
+            "mode": "month",
+            "mode-mon-col": 3,
+            "weeks-pos": "right",
+            "on-scroll": 1,
+            "format": {
+                "months":   "<span color='#cacccc'><b>{}</b></span>",
+                "days":     "<span color='#cacccc'><b>{}</b></span>",
+                "weeks":    "<span color='#798186'><b>W{}</b></span>",
+                "weekdays": "<span color='#9fa5a9'><b>{}</b></span>",
+                "today":    "<span color='#d9dbdc'><b><u>{}</u></b></span>"
+            }
+        }
+    },
+
+    "group/hardware": {
+        "orientation": "inherit",
+        "drawer": {
+            "transition-duration": 300,
+            "children-class": "not-memory",
+            "transition-left-to-right": false
+        },
+        "modules": [
+            "custom/system",
+            "cpu",
+            "temperature",
+            "disk",
+            "memory"
+        ]
+    },
+
+    "custom/system": {
+        "format": "<span size='small'>  </span>",
+        "tooltip": false
+    },
+
+    "cpu": {
+        "format": " 󰍛 {usage}% ",
+        "on-click": "kitty btop"
+    },
+
+    "temperature": {
+        "format": " 󰈸 {temperatureC}°C ",
+        "on-click": "kitty btop"
+    },
+
+    "disk": {
+        "interval": 30,
+        "format": " 󰋊 {percentage_used}% ",
+        "path": "/",
+        "on-click": "kitty btop"
+    },
+
+    "memory": {
+        "format": "  {}% ",
+        "on-click": "kitty btop"
+    },
+
+    "pulseaudio": {
+        "scroll-step": 1,
+        "format": "{icon} {volume}%",
+        "format-bluetooth": "{volume}% {icon} {format_source}",
+        "format-bluetooth-muted": "󰖁 {icon} {format_source}",
+        "format-muted": "󰖁 {format_source}",
+        "format-source": "{volume}% ",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "phone": "",
+            "car": "",
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol"
+    },
+
+    "bluetooth": {
+        "format": " {status}",
+        "format-disabled": " {status}",
+        "format-off": " {status}",
+        "interval": 30,
+        "on-click": "blueman-manager",
+        "format-no-controller": ""
+    },
+
+    "network": {
+        "format": "{ifname}",
+        "format-wifi": " {signalStrength}%",
+        "format-ethernet": "󰌘 {ifname}",
+        "format-disconnected": "disconnected",
+        "tooltip-format": "󰌘 {ifname} via {gwaddri}",
+        "tooltip-format-wifi": " {ifname} @ {essid}\nIP: {ipaddr}\nStrength: {signalStrength}%\nFreq: {frequency}MHz\n {bandwidthUpBits}  {bandwidthDownBits}",
+        "tooltip-format-ethernet": "󰌘 {ifname}\nIP: {ipaddr}\n  {bandwidthUpBits}  {bandwidthDownBits}",
+        "tooltip-format-disconnected": "disconnected",
+        "max-length": 50,
+        "on-click": "nm-connection-editor"
+    },
+
+    "battery": {
+        "states": {
+            "good": 95,
+            "warning": 30,
+            "critical": 10
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": " {capacity}%",
+        "format-plugged": " {capacity}%",
+        "format-icons": ["", "", "", "", ""]
+    },
+
+    "custom/exit": {
+        "format": "",
+        "on-click": "wlogout -b 2",
+        "tooltip": false
+    }
+}
