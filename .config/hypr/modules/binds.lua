@@ -1,10 +1,3 @@
-local terminal         = "kitty"
-local browser          = "zen-browser"
-local fileManager      = "kitty -e yazi"
-local screenshot       = "hyprshot -m output"
-local screenshotRegion = "hyprshot -m region"
-local launcher         = "rofi -show drun -theme ~/.config/rofi/config.rasi"
-
 local mainMod   = "SUPER"
 local secondMod = "SUPER + SHIFT"
 
@@ -14,16 +7,16 @@ for i = 1, 10 do
     hl.bind(secondMod .. " + " .. key, hl.dsp.window.move({ workspace = i }))
 end
 
-hl.bind(mainMod .. " + T",     hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + B",     hl.dsp.exec_cmd(browser))
-hl.bind(mainMod .. " + S",     hl.dsp.exec_cmd(screenshot))
-hl.bind(mainMod .. " + F",     hl.dsp.exec_cmd(fileManager))
-hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd(launcher))
+hl.bind(mainMod .. " + T",     hl.dsp.exec_cmd("kitty"))
+hl.bind(mainMod .. " + B",     hl.dsp.exec_cmd("qutebrowser"))
+hl.bind(mainMod .. " + F",     hl.dsp.exec_cmd("kitty -e yazi"))
+hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("rofi -show drun -theme ~/.config/rofi/config.rasi"))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("nvim"))
 hl.bind(mainMod .. " + W",     hl.dsp.exec_cmd("~/.config/scripts/wallpaper-switcher.sh"))
 hl.bind(mainMod .. " + C",     hl.dsp.exec_cmd("bash -c 'cliphist list | rofi -dmenu -theme ~/.config/rofi/config.rasi | cliphist decode | wl-copy'"))
-
-hl.bind(secondMod .. " + S", hl.dsp.exec_cmd(screenshotRegion))
+hl.bind(mainMod .. " + S",     hl.dsp.exec_cmd("grim ~/Pictures/$(date +%Y%m%d_%H%M%S).png"))
 hl.bind(secondMod .. " + P", hl.dsp.exec_cmd("~/.config/scripts/powermenu.sh"))
+hl.bind(secondMod .. " + S", hl.dsp.exec_cmd("grim -g "$(slurp)" ~/Pictures/$(date +%Y%m%d_%H%M%S).png"))
 
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
