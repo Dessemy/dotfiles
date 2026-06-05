@@ -96,7 +96,7 @@ systemctl --user enable --now pipewire pipewire-pulse wireplumber
 ## 4. Get dotfiles
 
 ```bash
-git clone https://github.com/Dessemy/dotfiles
+git clone https://github.com/Dessemy/dotfiles.git
 ```
 
 ---
