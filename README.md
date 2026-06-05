@@ -1,11 +1,11 @@
-# Panduan Install Hyprland di Arch Linux
-> Solitude setup — Hyprland · Waybar · Kitty · Rofi · Mako · Yazi · btop
+# Hyprland Setup
+> My Hypr
 
 ---
 
-## Daftar Isi
+## Table of contents
 
-1. [Base System](#1-base-system)
+1. [First thing first](#1-first-thing-first)
 2. [Driver & Display Server](#2-driver--display-server)
 3. [Hyprland & Ekosistem](#3-hyprland--ekosistem)
 4. [Terminal & Shell](#4-terminal--shell)
@@ -18,9 +18,7 @@
 
 ---
 
-## 1. Base System
-
-Pastikan Arch sudah terinstall dengan jaringan aktif, user non-root sudah dibuat, dan `sudo` sudah dikonfigurasi.
+## 1. First thing first
 
 ```bash
 # Update sistem
@@ -28,16 +26,8 @@ sudo pacman -Syu
 
 # Install base tools
 sudo pacman -S base-devel git wget curl unzip
-```
 
----
-
-## 2. Driver & Display Server
-
-### GPU — pilih sesuai hardware
-
-```bash
-# NVIDIA (sesuai env.lua)
+# NVIDIA
 sudo pacman -S nvidia nvidia-utils nvidia-settings libva-nvidia-driver
 
 # AMD
