@@ -48,7 +48,6 @@ yay -S \
     hyprsunset \
     jq \
     kitty \
-    ly \
     libnotify \
     mako \
     networkmanager \
@@ -75,7 +74,6 @@ yay -S \
     wl-clipboard \
     xdg-desktop-portal-gtk \
     xdg-desktop-portal-hyprland \
-    yazi \
     zsh \
     zoxide \
     zsh-completions \
@@ -89,7 +87,6 @@ yay -S \
 
 ```bash
 chsh -s /usr/bin/zsh
-sudo systemctl enable ly
 sudo systemctl enable --now bluetooth
 sudo systemctl enable --now NetworkManager
 systemctl --user enable --now polkit-kde-authentication-agent-1
