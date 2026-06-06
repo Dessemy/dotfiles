@@ -7,8 +7,8 @@
 
 1. [First thing first](#1-first-thing-first)
 2. [Essential](#2-essential)
-3. [Almost done](#3-almost-done)
-4. [Get dotfiles](#4-get-dotfiles)
+3. [Get dotfiles](#3-get-dotfiles)
+4. [Almost done](#4-almost-done)
 5. [Done](#5-done)
 6. [Note](#6-note)
 
