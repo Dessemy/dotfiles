@@ -29,9 +29,7 @@
 Install `git`, `base-devel`, and the AUR helper `yay`:
 
 ```bash
-sudo pacman -S git base-devel
-git clone https://aur.archlinux.org/yay.git
-cd yay && makepkg -si
+sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si
 ```
 
 ---
@@ -75,22 +73,13 @@ yay -S \
 
 ```bash
 yay -S \
-    pipewire \
-    pipewire-audio \
-    pipewire-jack \
-    pipewire-alsa \
-    pipewire-pulse \
-    wireplumber \
-    pavucontrol \
-    playerctl
+    pavucontrol
 ```
 
 ### Bluetooth
 
 ```bash
 yay -S \
-    bluez \
-    bluez-utils \
     blueman
 ```
 
@@ -98,7 +87,6 @@ yay -S \
 
 ```bash
 yay -S \
-    networkmanager \
     nm-connection-editor \
     openssh
 ```
@@ -122,6 +110,8 @@ yay -S \
     noto-fonts-cjk \
     noto-fonts \
     noto-fonts-emoji
+#
+fc-cache -fv
 ```
 
 ### Utilities
@@ -160,16 +150,11 @@ yay -S \
 
 ## 3. Enable Services
 
-Enable system and user services after installation:
+Enable system services after installation:
 
 ```bash
 # System services
-sudo systemctl enable ly
-sudo systemctl enable --now bluetooth
-sudo systemctl enable --now NetworkManager
-
-# User services
-systemctl --user enable --now pipewire pipewire-pulse wireplumber
+sudo systemctl enable ly@tty2
 ```
 
 Then reboot to enter Hyprland via `ly`:
