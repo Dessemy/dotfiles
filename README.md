@@ -88,7 +88,6 @@ yay -S \
 yay -S \
     ttf-jetbrains-mono-nerd \
     noto-fonts-cjk \
-    noto-fonts \
     noto-fonts-emoji
 
 # Refresh font cache
@@ -119,8 +118,7 @@ yay -S \
 ```bash
 yay -S \
     mpv \
-    ffmpegthumbnailer \
-    poppler
+    ffmpegthumbnailer
 ```
 
 ---
