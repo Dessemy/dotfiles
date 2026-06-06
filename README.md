@@ -64,6 +64,7 @@ yay -S \
     qutebrowser \
     qt5-wayland \
     qt6-wayland \
+    rofi-calc \
     ripgrep \
     rofi-wayland \
     slurp \
