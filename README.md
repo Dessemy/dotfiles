@@ -49,24 +49,7 @@ yay -S \
     rofi-wayland \
     rofi-calc \
     mako \
-    awww \
-    ly \
-    hyprpolkitagent \
-    xdg-utils \
-    xdg-desktop-portal-hyprland \
-    qt5-wayland \
-    qt6-wayland
-```
-
-### Display & Graphics
-
-> ⚠️ NVIDIA only. See [Notes](#6-notes).
-
-```bash
-yay -S \
-    nvidia-open-dkms \
-    libva-nvidia-driver \
-    dkms
+    awww
 ```
 
 ### Audio
@@ -88,7 +71,6 @@ yay -S \
 ```bash
 yay -S \
     nm-connection-editor \
-    openssh
 ```
 
 ### Terminal & Shell
@@ -126,15 +108,11 @@ yay -S \
     eza \
     fd \
     fzf \
-    grim \
-    slurp \
     imv \
     jq \
     nwg-look \
     ripgrep \
-    smartmontools \
-    wl-clipboard \
-    wget
+    wl-clipboard
 ```
 
 ### Media
@@ -148,30 +126,13 @@ yay -S \
 
 ---
 
-## 3. Enable Services
-
-Enable system services after installation:
-
-```bash
-# System services
-sudo systemctl enable ly@tty2
-```
-
-Then reboot to enter Hyprland via `ly`:
-
-```bash
-reboot
-```
-
----
-
 ## 4. Setup Dotfiles
 
 Clone and apply the dotfiles:
 
 ```bash
 git clone https://github.com/Dessemy/dotfiles.git ~/dotfiles
-rm -r ~/.config
+rm -rf ~/.config
 cp -r ~/dotfiles/.config/* ~/.config/
 chmod +x ~/.config/rofi/scripts/*
 ```
@@ -179,6 +140,13 @@ chmod +x ~/.config/rofi/scripts/*
 ---
 
 ## 5. Configure ZSH
+
+### Create required directories
+
+```bash
+mkdir -p ~/.local/state/zsh
+mkdir -p ~/.cache/zsh
+```
 
 ### Set ZSH as default shell
 
@@ -206,13 +174,6 @@ if [[ -d "$XDG_CONFIG_HOME/zsh" ]]; then
 fi
 ```
 
-### Create required directories
-
-```bash
-mkdir -p ~/.local/state/zsh
-mkdir -p ~/.cache/zsh
-```
-
 Then reboot:
 
 ```bash
@@ -222,5 +183,3 @@ reboot
 ---
 
 ## 6. Notes
-
-- This setup an **NVIDIA GPU**. Adjust the `nvidia-*`, packages if you're on AMD/Intel.
