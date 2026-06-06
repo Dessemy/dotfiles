@@ -82,6 +82,14 @@ yay -S \
 
 ---
 
+## 4. Get dotfiles
+
+```bash
+git clone https://github.com/Dessemy/dotfiles.git
+```
+
+---
+
 ## 3. Almost done
 
 ```bash
@@ -93,12 +101,17 @@ systemctl --user enable --now polkit-kde-authentication-agent-1
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
 ```
 
----
-
-## 4. Get dotfiles
-
 ```bash
-git clone https://github.com/Dessemy/dotfiles.git
+# sudo nvim /etc/zsh/zshenv
+if [[ -z "$XDG_CONFIG_HOME" ]]
+then
+    export XDG_CONFIG_HOME="$HOME/.config"
+fi
+
+if [[ -d "$XDG_CONFIG_HOME/zsh" ]]
+then
+    export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
+fi
 ```
 
 ---
@@ -112,4 +125,3 @@ reboot
 ---
 
 ## 6. Note
-I use Arch BTW -_-
