@@ -78,14 +78,28 @@ yay -S \
     starship \
     tmux \
     ttf-jetbrains-mono-nerd \
+    wget \
     waybar \
     wireplumber \
     wl-clipboard \
-    xdg-desktop-portal-gtk \
     xdg-desktop-portal-hyprland \
     xdg-utils \
     zsh \
     zoxide
+```
+
+### Enable Services
+
+```bash
+chsh -s /usr/bin/zsh
+sudo systemctl enable --now bluetooth
+sudo systemctl enable --now NetworkManager
+systemctl --user enable --now polkit-kde-authentication-agent-1
+systemctl --user enable --now pipewire pipewire-pulse wireplumber
+```
+
+```bash
+reboot
 ```
 
 ---
@@ -93,25 +107,17 @@ yay -S \
 ## 3. Clone Dotfiles
 
 ```bash
-git clone https://github.com/Dessemy/dotfiles.git
+git clone https://github.com/Dessemy/dotfiles.git ~/dotfiles
+cp -r ~/dotfiles/.config/* ~/.config/
+cp -r ~/dotfiles/Pictures/* ~/Pictures/
+chmod +x ~/.config/rofi/scripts/*
 ```
-
-Then symlink or copy the relevant configs into `~/.config/`.
 
 ---
 
 ## 4. Post-install Configuration
 
-### Enable Services & Set Default Shell
 
-```bash
-chmod +x ~/.config/rofi/scripts/*
-chsh -s /usr/bin/zsh
-sudo systemctl enable --now bluetooth
-sudo systemctl enable --now NetworkManager
-systemctl --user enable --now polkit-kde-authentication-agent-1
-systemctl --user enable --now pipewire pipewire-pulse wireplumber
-```
 
 ### Create Required Directories
 
@@ -152,7 +158,4 @@ reboot
 
 ## 6. Notes
 
-- This setup an **NVIDIA GPU**. Adjust or remove the `nvidia-*`, `egl-wayland`, and `linux-zen-headers` packages if you're on AMD/Intel.
-- `linux-headers` is required to build `nvidia-open-dkms`. Make sure the version matches your running kernel (e.g. `linux-headers` for `linux`, or `linux-zen-headers` for `linux-zen`).
-- `egl-wayland` helps prevent flickering on NVIDIA under Wayland.
--
+- This setup an **NVIDIA GPU**. Adjust or remove the `nvidia-*`, packages if you're on AMD/Intel.
