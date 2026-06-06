@@ -1,245 +1,208 @@
-@define-color bg     #101315;
-@define-color fg     #cacccc;
-@define-color accent #798186;
-@define-color dim    #343d41;
-@define-color muted  #565d60;
-@define-color soft   #9fa5a9;
-@define-color bright #d9dbdc;
-@define-color warm   #de6145;
-
 * {
-    font-family: "JetBrains Mono";
     border: none;
-    border-radius: 5px;
+    border-radius: 1px;
+    font-family: Fira Code;
+    font-size: 13px;
+    font-style: normal;
+    min-height: 0;
 }
 
 window#waybar {
-    background-color: alpha(@bg, 0.75);
-    transition-property: background-color;
-    transition-duration: .5s;
+    background: #2a2e36;
+    color: #eeeeee;
 }
+
 
 #workspaces {
-    margin: 4px 1px;
-    padding: 0px;
-    border-radius: 5px;
-    font-size: 16px;
-    color: @fg;
-    opacity: 0.9;
+    background: #1c1f24;
+    margin: 5px 5px;
+    padding: 8px 5px;
+    border-radius: 16px;
+    border: solid 0px #eeeeee;
+    font-weight: normal;
+    font-style: normal;
 }
-
 #workspaces button {
-    margin: 0px 2px;
     padding: 0px 5px;
-    color: @fg;
+    margin: 0px 3px;
+    border-radius: 16px;
+    color: #1c1f24;
+    background-color: #44475a;
     transition: all 0.3s ease-in-out;
 }
-
 #workspaces button.active {
-    color: @fg;
-    background: @accent;
+    color: #1c1f24;
+    background-color: #6272a4;
+    border-radius: 16px;
+    min-width: 50px;
+    background-size: 400% 400%;
     transition: all 0.3s ease-in-out;
-    opacity: 0.9;
 }
-
 #workspaces button:hover {
-    color: @fg;
-    background: @dim;
-    opacity: 0.9;
-    border: none;
-    box-shadow: none;
+    background-color: #44475a;
+    color: #1c1f24;
+    border-radius: 16px;
+    min-width: 50px;
+    background-size: 400% 400%;
 }
 
-#taskbar {
-    background: alpha(@muted, 0.2);
-    margin: 4px 15px 4px 1px;
-    padding: 0px;
+#clock, #battery, #network, #custom-brightness, #custom-launcher, #custom-updates-pacman-aur {
+    background: transparent;
+    padding: 5px 5px 5px 5px;
+    margin: 5px 5px 5px 5px;
+    border-radius: 8px;
+    border: solid 0px #6272a4;
 }
 
-#taskbar button {
-    margin: 0px 1px;
-    border-radius: 5px;
-    padding: 0px 5px;
+#custom-brightness{
+    color: #eeeeee;
+    font-weight: bold;
 }
 
-#taskbar button:hover {
-    background: @dim;
-    opacity: 1;
-    border: none;
-    box-shadow: none;
+#custom-updates-pacman-aur{
+    color: #eeeeee;
+    font-weight: bold;
 }
 
-tooltip {
-    border-radius: 5px;
-    background-color: @bg;
-    border: 1px solid alpha(@fg, 0.12);
-    opacity: 0.95;
+#tray
+ {
+    background: #1c1f24;
+    margin: 5px 5px 5px 5px;
+    border-radius: 28px;
+    padding: 0px 12px;
 }
 
-tooltip label {
-    border-radius: 5px;
-    background-color: @bg;
-    opacity: 0.95;
-    padding: 0px;
-    margin: -5px 0px;
-    font-size: 12px;
-    color: @fg;
+#clock, #battery {
+	background: #1c1f24;
+	padding-left: 15px;
+  padding-right: 14px;
+	border-radius: 16px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 10px;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 16px;
+  color: #eeeeee;
 }
 
-.modules-left > widget:first-child > #workspaces {
-    margin-left: 10;
-}
-
-.modules-right > widget:last-child > #workspaces {
-    margin-right: 0;
-}
-
-#clock {
-    background-color: @dim;
-    font-size: 16px;
-    color: @fg;
-    border-radius: 5px;
-    padding: 1px 10px 0px 10px;
-    margin: 4px 1px;
-    opacity: 0.9;
-}
-
-#cpu, #temperature, #disk, #memory {
-    margin: 0px;
-    padding: 0px;
-    font-size: 16px;
-    color: @fg;
-}
-
-#pulseaudio {
-    background-color: @accent;
-    font-size: 16px;
-    color: @bg;
-    border-radius: 5px;
-    padding: 1px 10px 0px 10px;
-    margin: 4px 1px 4px -15px;
-    opacity: 0.9;
+#custom-search {
+  background: #1c1f24;
+  padding-left: 15px;
+  padding-right: 14px;
+  border-radius: 16px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 3px;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 16px;
+  color: #eeeeee;
 }
 
 #network {
-    background-color: @accent;
+    background: #1c1f24;
+    padding: 4px 12px;
+    border-radius: 16px;
+    margin: 5px 0 5px 0;
+    font-weight: normal;
+    font-style: normal;
     font-size: 16px;
-    color: @bg;
-    border-radius: 5px;
-    padding: 1px 10px 0px 10px;
-    margin: 4px 1px;
-    opacity: 0.9;
+    color: #eeeeee;
 }
 
-#network.ethernet,
-#network.wifi {
-    background-color: @accent;
-    color: @bg;
-}
-
-#network.disconnected {
-    background-color: @muted;
-    color: @fg;
-}
-
-/* bluetooth */
-#bluetooth,
-#bluetooth.on,
-#bluetooth.connected,
-#bluetooth.off {
-    background-color: @accent;
-    font-size: 16px;
-    color: @bg;
-    border-radius: 5px;
-    padding: 1px 10px 0px 10px;
-    margin: 4px 1px;
-    opacity: 0.9;
-}
 
 #battery {
-    background-color: @accent;
-    font-size: 16px;
-    color: @bg;
-    border-radius: 5px;
-    padding: 1px 10px 0px 10px;
-    margin: 4px 1px;
-    opacity: 0.9;
+    color: #eeeeee;
+    font-weight: bold;
 }
-
-#battery.charging,
-#battery.plugged {
-    color: @bg;
-    background-color: @soft;
+#battery.charging {
+    color: #ffffff;
 }
-
 #battery.warning:not(.charging) {
-    background-color: @muted;
-    color: @fg;
+    color: #ffffff;
 }
 
-@keyframes blink {
-    to {
-        background-color: @dim;
-        color: @warm;
-    }
-}
-
-#battery.critical:not(.charging) {
-    background-color: @warm;
-    color: @bg;
-    animation-name: blink;
-    animation-duration: 0.5s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-}
-
-#tray {
-    padding: 0px 15px 0px 0px;
-    color: @fg;
-}
-
-#tray > .passive {
-    -gtk-icon-effect: dim;
-}
-
-#tray > .needs-attention {
-    -gtk-icon-effect: highlight;
-}
-
-#custom-exit {
-    margin: 0px 18px 0px 5px;
-    padding: 0px;
-    font-size: 20px;
-    color: @fg;
-}
-
-#custom-system {
-    margin-right: 15px;
-    font-size: 20px;
-    font-weight: bold;
-    opacity: 0.8;
-    color: @accent;
-}
-
-#custom-settings {
+#backlight {
+    color: #eeeeee;
+    border-radius: 0px 0px 0px 0px;
+    margin: 5px;
+    margin-left: 0px;
     margin-right: 0px;
-    font-size: 20px;
+    padding: 0px 0px;
     font-weight: bold;
-    opacity: 0.8;
-    color: @fg;
 }
 
-#custom-updates {
-    background-color: @accent;
+#pulseaudio {
+    color: #eeeeee;
+    border-radius: 8px;
+    margin-left: 0px;
+    font-weight: bold;
+}
+
+#custom-playerctl {
+  background: #1c1f24;
+  border-radius: 16px 0 0 16px; /* rounded left */
+  padding: 5px 8px;
+  margin: 5px 0 5px 5px;
+  color: #eeeeee;
+}
+
+#custom-playerlabel {
+  background: #1c1f24;
+  border-radius: 0 16px 16px 0; /* rounded right */
+  padding: 5px 10px;
+  margin: 5px 5px 5px 0;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 16px;
+  color: #eeeeee;
+}
+
+
+#bluetooth {
+  background: #1c1f24;
+  border-radius: 16px 0 0 16px; /* left pill side */
+  padding: 5px 10px;
+  margin: 5px 0 5px 5px;
+  font-size: 16px;
+  color: #eeeeee;
+}
+
+#custom-notify {
+  background: #1c1f24;
+  border-radius: 0 16px 16px 0; /* right pill side */
+  padding: 5px 10px;
+  margin: 5px 5px 5px 0;
+  font-size: 16px;
+  color: #eeeeee;
+}
+
+#pulseaudio {
+	background: #1c1f24;
+	padding-left: 15px;
+  padding-right: 14px;
+	border-radius: 16px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 0px;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 16px;
+  color: #eeeeee;
+}
+
+#window,
+#hyprland-window {
+    background: #1c1f24;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 16px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 10px;
+    font-weight: normal;
+    font-style: normal;
     font-size: 16px;
-    color: @bg;
-    border-radius: 5px;
-    padding: 2px 10px 0px 10px;
-    margin: 8px 15px 8px 0px;
-    opacity: 0.8;
+    color: #eeeeee;
 }
-
-#custom-updates.green  { background-color: @soft;   color: @bg; }
-#custom-updates.yellow { background-color: @bright; color: @bg; }
-#custom-updates.red    { background-color: @warm;   color: @bg; }
