@@ -82,7 +82,7 @@ yay -S \
 
 ---
 
-## 4. Get dotfiles
+## 3. Get dotfiles
 
 ```bash
 git clone https://github.com/Dessemy/dotfiles.git
@@ -90,7 +90,7 @@ git clone https://github.com/Dessemy/dotfiles.git
 
 ---
 
-## 3. Almost done
+## 4. Almost done
 
 ```bash
 chmod +x ~/.config/rofi/scripts/*
