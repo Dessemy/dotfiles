@@ -26,8 +26,8 @@
   
   "battery": {
     "format": "{icon} {capacity}%",
-    "format-charging": "<span foreground='#8cb6ff'>󰂄 </span>{capacity}%",
-    "format-full": "<span foreground='#8cb6ff'>󰂄 </span>{capacity}%",
+    "format-charging": "<span foreground='#a8adb0'>󰂄 </span>{capacity}%",
+    "format-full": "<span foreground='#a8adb0'>󰂄 </span>{capacity}%",
     "tooltip-format": "Time remaining: {time}\nPower draw: {power}W",
     "max-length": 10,
     "class": "capsule"
@@ -83,7 +83,7 @@
   
   "bluetooth": {
     "format": "<span size='12000'> </span>",
-    "format-connected": "<span size='12000' foreground='#8cb6ff'></span>",
+    "format-connected": "<span size='12000' foreground='#a8adb0'></span>",
     "tooltip-format": "{status}",
     "on-click": "blueman-manager"
   },
@@ -134,9 +134,9 @@
     "format": "<span size='13000'>{icon} </span>{capacity}%",
     "format-warning": "<span size='13000'>{icon} </span>{capacity}%",
     "format-critical": "<span size='13000'>{icon} </span>{capacity}%",
-    "format-charging": "<span size='13000' foreground='#8cb6ff'>󰂄 </span>{capacity}%",
-    "format-plugged": "<span size='13000' foreground='#8cb6ff'>󰂄 </span>{capacity}%",
-    "format-full": "<span size='13000' foreground='#8cb6ff'>󰂄 </span>{capacity}%",
+    "format-charging": "<span size='13000' foreground='#a8adb0'>󰂄 </span>{capacity}%",
+    "format-plugged": "<span size='13000' foreground='#a8adb0'>󰂄 </span>{capacity}%",
+    "format-full": "<span size='13000' foreground='#a8adb0'>󰂄 </span>{capacity}%",
     "format-icons": ["󰁺","󰁼","󰁾","󰂀","󰂂"],
     "tooltip-format": "Time remaining: {time}\nPower draw: {power}W"
   }
