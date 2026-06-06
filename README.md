@@ -101,8 +101,16 @@ systemctl --user enable --now polkit-kde-authentication-agent-1
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
 ```
 
+# Create required directories
+
 ```bash
+mkdir -p ~/.local/state/zsh
+mkdir -p ~/.cache/zsh
+```
+
 # sudo nvim /etc/zsh/zshenv
+
+```bash
 if [[ -z "$XDG_CONFIG_HOME" ]]
 then
     export XDG_CONFIG_HOME="$HOME/.config"
