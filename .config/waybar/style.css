@@ -1,24 +1,24 @@
 * {
     border: none;
     border-radius: 1px;
-    font-family: Fira Code;
+    font-family: JetBrains Mono;
     font-size: 13px;
     font-style: normal;
     min-height: 0;
 }
 
 window#waybar {
-    background: #2a2e36;
-    color: #eeeeee;
+    background: #101315;
+    color: #cacccc;
 }
 
 
 #workspaces {
-    background: #1c1f24;
+    background: #1a1f22;
     margin: 5px 5px;
     padding: 8px 5px;
     border-radius: 16px;
-    border: solid 0px #eeeeee;
+    border: solid 0px #cacccc;
     font-weight: normal;
     font-style: normal;
 }
@@ -26,21 +26,21 @@ window#waybar {
     padding: 0px 5px;
     margin: 0px 3px;
     border-radius: 16px;
-    color: #1c1f24;
-    background-color: #44475a;
+    color: #1a1f22;
+    background-color: #343d41;
     transition: all 0.3s ease-in-out;
 }
 #workspaces button.active {
-    color: #1c1f24;
-    background-color: #6272a4;
+    color: #1a1f22;
+    background-color: #798186;
     border-radius: 16px;
     min-width: 50px;
     background-size: 400% 400%;
     transition: all 0.3s ease-in-out;
 }
 #workspaces button:hover {
-    background-color: #44475a;
-    color: #1c1f24;
+    background-color: #343d41;
+    color: #1a1f22;
     border-radius: 16px;
     min-width: 50px;
     background-size: 400% 400%;
@@ -51,29 +51,29 @@ window#waybar {
     padding: 5px 5px 5px 5px;
     margin: 5px 5px 5px 5px;
     border-radius: 8px;
-    border: solid 0px #6272a4;
+    border: solid 0px #798186;
 }
 
 #custom-brightness{
-    color: #eeeeee;
+    color: #cacccc;
     font-weight: bold;
 }
 
 #custom-updates-pacman-aur{
-    color: #eeeeee;
+    color: #cacccc;
     font-weight: bold;
 }
 
 #tray
  {
-    background: #1c1f24;
+    background: #1a1f22;
     margin: 5px 5px 5px 5px;
     border-radius: 28px;
     padding: 0px 12px;
 }
 
 #clock, #battery {
-	background: #1c1f24;
+	background: #1a1f22;
 	padding-left: 15px;
   padding-right: 14px;
 	border-radius: 16px;
@@ -83,11 +83,11 @@ window#waybar {
   font-weight: normal;
   font-style: normal;
   font-size: 16px;
-  color: #eeeeee;
+  color: #cacccc;
 }
 
 #custom-search {
-  background: #1c1f24;
+  background: #1a1f22;
   padding-left: 15px;
   padding-right: 14px;
   border-radius: 16px;
@@ -97,23 +97,23 @@ window#waybar {
   font-weight: normal;
   font-style: normal;
   font-size: 16px;
-  color: #eeeeee;
+  color: #cacccc;
 }
 
 #network {
-    background: #1c1f24;
+    background: #1a1f22;
     padding: 4px 12px;
     border-radius: 16px;
     margin: 5px 0 5px 0;
     font-weight: normal;
     font-style: normal;
     font-size: 16px;
-    color: #eeeeee;
+    color: #cacccc;
 }
 
 
 #battery {
-    color: #eeeeee;
+    color: #cacccc;
     font-weight: bold;
 }
 #battery.charging {
@@ -124,7 +124,7 @@ window#waybar {
 }
 
 #backlight {
-    color: #eeeeee;
+    color: #cacccc;
     border-radius: 0px 0px 0px 0px;
     margin: 5px;
     margin-left: 0px;
@@ -134,52 +134,52 @@ window#waybar {
 }
 
 #pulseaudio {
-    color: #eeeeee;
+    color: #cacccc;
     border-radius: 8px;
     margin-left: 0px;
     font-weight: bold;
 }
 
 #custom-playerctl {
-  background: #1c1f24;
+  background: #1a1f22;
   border-radius: 16px 0 0 16px; /* rounded left */
   padding: 5px 8px;
   margin: 5px 0 5px 5px;
-  color: #eeeeee;
+  color: #cacccc;
 }
 
 #custom-playerlabel {
-  background: #1c1f24;
+  background: #1a1f22;
   border-radius: 0 16px 16px 0; /* rounded right */
   padding: 5px 10px;
   margin: 5px 5px 5px 0;
   font-weight: normal;
   font-style: normal;
   font-size: 16px;
-  color: #eeeeee;
+  color: #cacccc;
 }
 
 
 #bluetooth {
-  background: #1c1f24;
+  background: #1a1f22;
   border-radius: 16px 0 0 16px; /* left pill side */
   padding: 5px 10px;
   margin: 5px 0 5px 5px;
   font-size: 16px;
-  color: #eeeeee;
+  color: #cacccc;
 }
 
 #custom-notify {
-  background: #1c1f24;
+  background: #1a1f22;
   border-radius: 0 16px 16px 0; /* right pill side */
   padding: 5px 10px;
   margin: 5px 5px 5px 0;
   font-size: 16px;
-  color: #eeeeee;
+  color: #cacccc;
 }
 
 #pulseaudio {
-	background: #1c1f24;
+	background: #1a1f22;
 	padding-left: 15px;
   padding-right: 14px;
 	border-radius: 16px;
@@ -189,12 +189,12 @@ window#waybar {
   font-weight: normal;
   font-style: normal;
   font-size: 16px;
-  color: #eeeeee;
+  color: #cacccc;
 }
 
 #window,
 #hyprland-window {
-    background: #1c1f24;
+    background: #1a1f22;
     padding-left: 15px;
     padding-right: 15px;
     border-radius: 16px;
@@ -204,5 +204,5 @@ window#waybar {
     font-weight: normal;
     font-style: normal;
     font-size: 16px;
-    color: #eeeeee;
+    color: #cacccc;
 }
