@@ -1,6 +1,6 @@
 # Hyprland Setup
 
-> My personal Hyprland configuration for Arch Linux — opinionated, and minimal.
+> My personal Hyprland configuration for Arch Linux — opinionated, minimal, and Gruvbox-themed.
 
 ---
 
@@ -9,7 +9,6 @@
 1. [Prerequisites](#1-prerequisites)
 2. [Install Packages](#2-install-packages)
    - [Core — Hyprland & Wayland](#core--hyprland--wayland)
-   - [Display & Graphics](#display--graphics)
    - [Audio](#audio)
    - [Bluetooth](#bluetooth)
    - [Networking](#networking)
@@ -17,20 +16,23 @@
    - [Fonts](#fonts)
    - [Utilities](#utilities)
    - [Media](#media)
-3. [Enable Services](#3-enable-services)
-4. [Setup Dotfiles](#4-setup-dotfiles)
-5. [Configure ZSH](#5-configure-zsh)
-6. [Notes](#6-notes)
+3. [Setup Dotfiles](#3-setup-dotfiles)
+4. [Configure ZSH](#4-configure-zsh)
+5. [Notes](#5-notes)
 
 ---
 
 ## 1. Prerequisites
 
-debloat
+### Debloat
+
+Remove packages that conflict with or are replaced by this setup:
 
 ```bash
 sudo pacman -Rns dolphin dunst htop nano uwsm vim wofi
 ```
+
+### Install Base Tools
 
 Install `git`, `base-devel`, and the AUR helper `yay`:
 
@@ -76,7 +78,7 @@ yay -S \
 
 ```bash
 yay -S \
-    nm-connection-editor \
+    nm-connection-editor
 ```
 
 ### Terminal & Shell
@@ -97,7 +99,8 @@ yay -S \
     noto-fonts-cjk \
     noto-fonts \
     noto-fonts-emoji
-#
+
+# Refresh font cache
 fc-cache -fv
 ```
 
@@ -132,7 +135,7 @@ yay -S \
 
 ---
 
-## 4. Setup Dotfiles
+## 3. Setup Dotfiles
 
 Clone and apply the dotfiles:
 
@@ -143,24 +146,26 @@ cp -r ~/dotfiles/.config/* ~/.config/
 chmod +x ~/.config/rofi/scripts/*
 ```
 
+> **Warning:** This replaces your entire `~/.config` directory.
+
 ---
 
-## 5. Configure ZSH
+## 4. Configure ZSH
 
-### Create required directories
+### Create Required Directories
 
 ```bash
 mkdir -p ~/.local/state/zsh
 mkdir -p ~/.cache/zsh
 ```
 
-### Set ZSH as default shell
+### Set ZSH as Default Shell
 
 ```bash
 chsh -s /usr/bin/zsh
 ```
 
-### Set XDG-compliant ZDOTDIR
+### Set XDG-Compliant ZDOTDIR
 
 Edit `/etc/zsh/zshenv` as root:
 
@@ -168,7 +173,7 @@ Edit `/etc/zsh/zshenv` as root:
 sudo nvim /etc/zsh/zshenv
 ```
 
-Add the following:
+Add the following lines:
 
 ```bash
 if [[ -z "$XDG_CONFIG_HOME" ]]; then
@@ -180,7 +185,7 @@ if [[ -d "$XDG_CONFIG_HOME/zsh" ]]; then
 fi
 ```
 
-Then reboot:
+### Reboot
 
 ```bash
 reboot
@@ -188,4 +193,4 @@ reboot
 
 ---
 
-## 6. Notes
+## 5. Notes
