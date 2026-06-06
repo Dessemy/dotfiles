@@ -92,6 +92,8 @@ git clone https://github.com/Dessemy/dotfiles.git
 
 ## 4. Almost done
 
+### set it up
+
 ```bash
 chmod +x ~/.config/rofi/scripts/*
 chsh -s /usr/bin/zsh
@@ -101,14 +103,14 @@ systemctl --user enable --now polkit-kde-authentication-agent-1
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
 ```
 
-# Create required directories
+### Create required directories
 
 ```bash
 mkdir -p ~/.local/state/zsh
 mkdir -p ~/.cache/zsh
 ```
 
-# sudo nvim /etc/zsh/zshenv
+### sudo nvim /etc/zsh/zshenv
 
 ```bash
 if [[ -z "$XDG_CONFIG_HOME" ]]
