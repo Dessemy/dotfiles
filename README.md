@@ -10,14 +10,11 @@
 2. [Install Essential Packages](#2-install-essential-packages)
 3. [Clone Dotfiles](#3-clone-dotfiles)
 4. [Post-install Configuration](#4-post-install-configuration)
-5. [Reboot](#5-reboot)
-6. [Notes](#6-notes)
+5. [Notes](#5-notes)
 
 ---
 
 ## 1. Prerequisites
-
-Install `git`, `base-devel`, and the AUR helper `yay`:
 
 ```bash
 sudo pacman -S git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
@@ -29,6 +26,8 @@ sudo pacman -S git base-devel && git clone https://aur.archlinux.org/yay.git && 
 
 ```bash
 yay -S \
+    ly \
+    wget \
     awww \
     bat \
     btop \
@@ -82,21 +81,23 @@ yay -S \
     waybar \
     wireplumber \
     wl-clipboard \
-    xdg-desktop-portal-hyprland \
     xdg-utils \
     zsh \
     zoxide
+    xdg-desktop-portal-hyprland \
 ```
 
 ### Enable Services
 
 ```bash
-chsh -s /usr/bin/zsh
+sudo systemctl enable ly
 sudo systemctl enable --now bluetooth
 sudo systemctl enable --now NetworkManager
 systemctl --user enable --now polkit-kde-authentication-agent-1
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
 ```
+
+### Enter Hyprland
 
 ```bash
 reboot
@@ -104,7 +105,7 @@ reboot
 
 ---
 
-## 3. Clone Dotfiles
+## 3. Setup Dotfiles
 
 ```bash
 git clone https://github.com/Dessemy/dotfiles.git ~/dotfiles
@@ -113,28 +114,15 @@ cp -r ~/dotfiles/Pictures/* ~/Pictures/
 chmod +x ~/.config/rofi/scripts/*
 ```
 
----
-
-## 4. Post-install Configuration
-
-
-
-### Create Required Directories
-
-```bash
-mkdir -p ~/.local/state/zsh
-mkdir -p ~/.cache/zsh
-```
-
 ### Configure ZSH Environment
 
-Edit `/etc/zsh/zshenv` as root to set XDG-compliant paths:
+```bash
+chsh -s /usr/bin/zsh
+```
 
 ```bash
 sudo nvim /etc/zsh/zshenv
 ```
-
-Add the following:
 
 ```bash
 if [[ -z "$XDG_CONFIG_HOME" ]]; then
@@ -146,9 +134,14 @@ if [[ -d "$XDG_CONFIG_HOME/zsh" ]]; then
 fi
 ```
 
----
+### Create Required Directories
 
-## 5. Reboot
+```bash
+mkdir -p ~/.local/state/zsh
+mkdir -p ~/.cache/zsh
+```
+
+### Done
 
 ```bash
 reboot
@@ -156,6 +149,6 @@ reboot
 
 ---
 
-## 6. Notes
+## 5. Notes
 
 - This setup an **NVIDIA GPU**. Adjust or remove the `nvidia-*`, packages if you're on AMD/Intel.
