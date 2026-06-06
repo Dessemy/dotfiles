@@ -1,20 +1,23 @@
 # Hyprland Setup
-> My Hypr
+
+> My personal Hyprland configuration for Arch Linux — opinionated, minimal.
 
 ---
 
-## Table of contents
+## Table of Contents
 
-1. [First thing first](#1-first-thing-first)
-2. [Essential](#2-essential)
-3. [Get dotfiles](#3-get-dotfiles)
-4. [Almost done](#4-almost-done)
-5. [Done](#5-done)
-6. [Note](#6-note)
+1. [Prerequisites](#1-prerequisites)
+2. [Install Essential Packages](#2-install-essential-packages)
+3. [Clone Dotfiles](#3-clone-dotfiles)
+4. [Post-install Configuration](#4-post-install-configuration)
+5. [Reboot](#5-reboot)
+6. [Notes](#6-notes)
 
 ---
 
-## 1. First thing first
+## 1. Prerequisites
+
+Install `git`, `base-devel`, and the AUR helper `yay`:
 
 ```bash
 sudo pacman -S git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
@@ -22,7 +25,7 @@ sudo pacman -S git base-devel && git clone https://aur.archlinux.org/yay.git && 
 
 ---
 
-## 2. Essential
+## 2. Install Essential Packages
 
 ```bash
 yay -S \
@@ -82,17 +85,19 @@ yay -S \
 
 ---
 
-## 3. Get dotfiles
+## 3. Clone Dotfiles
 
 ```bash
 git clone https://github.com/Dessemy/dotfiles.git
 ```
 
+Then symlink or copy the relevant configs into `~/.config/`.
+
 ---
 
-## 4. Almost done
+## 4. Post-install Configuration
 
-### set it up
+### Enable Services & Set Default Shell
 
 ```bash
 chmod +x ~/.config/rofi/scripts/*
@@ -103,30 +108,36 @@ systemctl --user enable --now polkit-kde-authentication-agent-1
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
 ```
 
-### Create required directories
+### Create Required Directories
 
 ```bash
 mkdir -p ~/.local/state/zsh
 mkdir -p ~/.cache/zsh
 ```
 
-### sudo nvim /etc/zsh/zshenv
+### Configure ZSH Environment
+
+Edit `/etc/zsh/zshenv` as root to set XDG-compliant paths:
 
 ```bash
-if [[ -z "$XDG_CONFIG_HOME" ]]
-then
+sudo nvim /etc/zsh/zshenv
+```
+
+Add the following:
+
+```bash
+if [[ -z "$XDG_CONFIG_HOME" ]]; then
     export XDG_CONFIG_HOME="$HOME/.config"
 fi
 
-if [[ -d "$XDG_CONFIG_HOME/zsh" ]]
-then
+if [[ -d "$XDG_CONFIG_HOME/zsh" ]]; then
     export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 fi
 ```
 
 ---
 
-## 5. Done
+## 5. Reboot
 
 ```bash
 reboot
@@ -134,4 +145,6 @@ reboot
 
 ---
 
-## 6. Note
+## 6. Notes
+
+- This setup an **NVIDIA GPU**. Adjust or remove the `nvidia-*` packages if you're on AMD/Intel.
