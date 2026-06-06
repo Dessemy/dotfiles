@@ -53,7 +53,7 @@ yay -S \
     mako \
     awww \
     ly \
-    polkit-kde-agent \
+    hyprpolkitagent \
     xdg-utils \
     xdg-desktop-portal-hyprland \
     qt5-wayland \
@@ -169,7 +169,6 @@ sudo systemctl enable --now bluetooth
 sudo systemctl enable --now NetworkManager
 
 # User services
-systemctl --user enable --now polkit-kde-authentication-agent-1
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
 ```
 
