@@ -26,7 +26,11 @@
 
 ## 1. Prerequisites
 
+```bash
+debloat
+sudo pacman -Rns dolphin dunst htop nano uwsm vim wofi
 Install `git`, `base-devel`, and the AUR helper `yay`:
+```
 
 ```bash
 sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si
@@ -77,7 +81,6 @@ yay -S \
 
 ```bash
 yay -S \
-    kitty \
     zsh \
     starship \
     tmux \
