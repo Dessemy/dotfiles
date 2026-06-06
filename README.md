@@ -110,7 +110,9 @@ mkdir -p ~/.local/state/zsh
 mkdir -p ~/.cache/zsh
 ```
 
+```bash
 ### sudo nvim /etc/zsh/zshenv
+```
 
 ```bash
 if [[ -z "$XDG_CONFIG_HOME" ]]
