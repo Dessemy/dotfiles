@@ -1,6 +1,6 @@
 # Hyprland Setup
 
-> My personal Hyprland configuration for Arch Linux — opinionated, minimal.
+> My personal Hyprland configuration for Arch Linux — opinionated, and minimal.
 
 ---
 
@@ -33,11 +33,12 @@ yay -S \
     bat \
     btop \
     bluez \
-    bluez-utils \
     blueman \
+    bluez-utils \
     brightnessctl \
     cliphist \
     eza \
+    egl-wayland \
     fd \
     fzf \
     ffmpegthumbnailer \
@@ -45,12 +46,18 @@ yay -S \
     hyprlock \
     hyprland \
     hypridle \
+    hyperpicker \
     hyprsunset \
+    imv \
     jq \
     kitty \
     libnotify \
+    linux-zen-headers \
     mako \
+    mpv \
     neovim \
+    noto-fonts \
+    noto-fonts-emoji \
     nwg-look \
     networkmanager \
     nvidia-utils \
@@ -58,12 +65,14 @@ yay -S \
     nvidia-open-dkms \
     nm-connection-editor \
     pipewire \
+    pipewire-alsa \
+    pipewire-jack \
+    pipewire-pulse \
     poppler \
     playerctl \
     pavucontrol \
-    pipewire-alsa \
-    pipewire-pulse \
     polkit-kde-agent \
+    python-gobject \
     qutebrowser \
     qt5-wayland \
     qt6-wayland \
@@ -79,6 +88,7 @@ yay -S \
     wl-clipboard \
     xdg-desktop-portal-gtk \
     xdg-desktop-portal-hyprland \
+    xdg-utils \
     zsh \
     zoxide
 ```
@@ -147,4 +157,7 @@ reboot
 
 ## 6. Notes
 
-- This setup an **NVIDIA GPU**. Adjust or remove the `nvidia-*` packages if you're on AMD/Intel.
+- This setup an **NVIDIA GPU**. Adjust or remove the `nvidia-*`, `egl-wayland`, and `linux-zen-headers` packages if you're on AMD/Intel.
+- `linux-headers` is required to build `nvidia-open-dkms`. Make sure the version matches your running kernel (e.g. `linux-headers` for `linux`, or `linux-zen-headers` for `linux-zen`).
+- `egl-wayland` helps prevent flickering on NVIDIA under Wayland.
+-
