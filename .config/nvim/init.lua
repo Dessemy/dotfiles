@@ -13,4 +13,4 @@ vim.opt.rtp:prepend(lazypath)
 
 require("vim-options")
 require("lazy").setup("plugins")
-vim.cmd.colorscheme("solitude")
+vim.cmd.colorscheme("custom")
