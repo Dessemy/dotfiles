@@ -117,6 +117,7 @@ yay -S \
 ```bash
 yay -S \
     ttf-jetbrains-mono-nerd \
+    noto-fonts-cjk \
     noto-fonts \
     noto-fonts-emoji
 ```
