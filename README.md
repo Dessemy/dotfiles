@@ -11,7 +11,6 @@
    - [Core — Hyprland & Wayland](#core--hyprland--wayland)
    - [Audio](#audio)
    - [Bluetooth](#bluetooth)
-   - [Networking](#networking)
    - [Terminal & Shell](#terminal--shell)
    - [Fonts](#fonts)
    - [Utilities](#utilities)
@@ -71,13 +70,6 @@ yay -S \
 ```bash
 yay -S \
     blueman
-```
-
-### Networking
-
-```bash
-yay -S \
-    nm-connection-editor
 ```
 
 ### Terminal & Shell
