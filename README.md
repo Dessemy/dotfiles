@@ -77,7 +77,7 @@ yay -S \
     xdg-desktop-portal-gtk \
     xdg-desktop-portal-hyprland \
     zsh \
-    zoxide \
+    zoxide
 ```
 
 ---
