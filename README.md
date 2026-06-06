@@ -37,8 +37,8 @@ yay -S \
     bluez-utils \
     brightnessctl \
     cliphist \
+    dkms \
     eza \
-    egl-wayland \
     fd \
     fzf \
     ffmpegthumbnailer \
@@ -51,8 +51,7 @@ yay -S \
     imv \
     jq \
     kitty \
-    libnotify \
-    linux-zen-headers \
+    libva-nvidia-driver \
     mako \
     mpv \
     neovim \
@@ -60,19 +59,15 @@ yay -S \
     noto-fonts-emoji \
     nwg-look \
     networkmanager \
-    nvidia-utils \
-    nvidia-settings \
     nvidia-open-dkms \
     nm-connection-editor \
     pipewire \
     pipewire-alsa \
-    pipewire-jack \
     pipewire-pulse \
     poppler \
     playerctl \
     pavucontrol \
     polkit-kde-agent \
-    python-gobject \
     qutebrowser \
     qt5-wayland \
     qt6-wayland \
