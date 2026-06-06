@@ -76,6 +76,8 @@ yay -S \
 ```bash
 yay -S \
     pipewire \
+    pipewire-audio \
+    pipewire-jack \
     pipewire-alsa \
     pipewire-pulse \
     wireplumber \
