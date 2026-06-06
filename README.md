@@ -85,6 +85,7 @@ yay -S \
 ## 3. Almost done
 
 ```bash
+chmod +x ~/.config/rofi/scripts/*
 chsh -s /usr/bin/zsh
 sudo systemctl enable --now bluetooth
 sudo systemctl enable --now NetworkManager
