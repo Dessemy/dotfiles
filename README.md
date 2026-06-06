@@ -120,7 +120,6 @@ yay -S \
     jq \
     nwg-look \
     ripgrep \
-    qutebrowser \
     wl-clipboard
 ```
 
