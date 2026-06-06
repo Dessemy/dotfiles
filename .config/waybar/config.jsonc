@@ -1,169 +1,143 @@
 {
-    "position": "top",
-    "layer": "top",
-    "margin-top": 8,
-    "margin-bottom": 0,
-    "margin-left": 8,
-    "margin-right": 8,
-    "spacing": 10,
-    "fixed-center": true,
-    "exclusive": true,
+  "position": "top",
+  "layer": "top",
 
-    "modules-left": [
-        "hyprland/workspaces",
-        "wlr/taskbar"
-    ],
+  // Bar
+  "modules-left": ["hyprland/window"],
+  "modules-center": ["custom/playerctl", "custom/playerlabel", "custom/search", "hyprland/workspaces", "network", "clock", "battery"],
+  "modules-right": ["tray", "pulseaudio", "bluetooth",  "custom/notify"],
 
-    "modules-center": [
-        "clock"
-    ],
 
-    "modules-right": [
-        "group/hardware",
-        "pulseaudio",
-        "bluetooth",
-        "network",
-        "battery",
-        "custom/exit"
-    ],
+  // Modules configuration
+  
+  "custom/search": {
+    "format": " ",
+    "tooltip": "true",
+    "tooltip-format": "Search",
+    "on-click": "qs ipc call overview toggle"
+  },
+  
+  "clock": {
+    "format": "<span size='12000'></span> {:%I:%M %p}",
+    "tooltip": "true",
+    "tooltip-format": "Click to change Wallpaper",
+    "on-click": "qs ipc call wallpaperSelector toggle"
+  },
+  
+  "battery": {
+    "format": "{icon} {capacity}%",
+    "format-charging": "<span foreground='#8cb6ff'>󰂄 </span>{capacity}%",
+    "format-full": "<span foreground='#8cb6ff'>󰂄 </span>{capacity}%",
+    "tooltip-format": "Time remaining: {time}\nPower draw: {power}W",
+    "max-length": 10,
+    "class": "capsule"
+  },
 
-    "hyprland/workspaces": {
-        "on-click": "activate",
-        "active-only": false,
-        "all-outputs": true,
-        "format": "{icon}",
-        "format-icons": {
-            "urgent":  "",
-            "active":  "",
-            "default": ""
-        }
+
+  "hyprland/workspaces": {
+    "active-only": false,
+    "all-outputs": false,
+    "disable-scroll": false,
+    "on-scroll-up": "hyprctl dispatch workspace e-1",
+    "on-scroll-down": "hyprctl dispatch workspace e+1",
+    "format": "{icon}",
+    "on-click": "activate",
+    "format-icons": {
+      "urgent": "",
+      "active": "",
+      "default": ""
     },
+    "sort-by-number": true
+  },
 
-    "wlr/taskbar": {
-        "format": "{icon}",
-        "icon-size": 18,
-        "tooltip-format": "{title}",
-        "on-click": "activate",
-        "on-click-middle": "close"
-    },
+  "custom/playerctl": {
+    "format": "{icon}",
+    "return-type": "json",
+    "exec": "playerctl metadata --format '{\"text\": \"{{artist}} - {{markup_escape(title)}}\", \"alt\": \"{{status}}\"}' || echo '{\"text\":\"No Media\",\"alt\":\"Stopped\"}'",
+    "exec-if": "which playerctl",
+    "on-click": "playerctl play-pause",
+    "interval": 3,
+    "format-icons": {
+      "Playing": "<span foreground='#E5B9C6'> 󰐌</span>",
+      "Paused": "<span foreground='#928374'> 󰏥</span>",
+      "Stopped": "<span foreground='#665c54'> 󰝚</span>"
+    } 
+  },
 
-    "clock": {
-        "interval": 1,
-        "format": "{:%I:%M %p}",
-        "format-alt": "{:%A, %B %d - %H:%M}",
-        "tooltip-format": "<big>{calendar}</big>",
-        "calendar": {
-            "mode": "month",
-            "mode-mon-col": 3,
-            "weeks-pos": "right",
-            "on-scroll": 1,
-            "format": {
-                "months":   "<span color='#cacccc'><b>{}</b></span>",
-                "days":     "<span color='#cacccc'><b>{}</b></span>",
-                "weeks":    "<span color='#798186'><b>W{}</b></span>",
-                "weekdays": "<span color='#9fa5a9'><b>{}</b></span>",
-                "today":    "<span color='#d9dbdc'><b><u>{}</u></b></span>"
-            }
-        }
-    },
+  "custom/playerlabel": {
+    "format": "{text}",
+    "return-type": "json",
+    "max-length": 30,
+    "exec": "playerctl metadata --format '{\"text\": \"{{artist}} - {{markup_escape(title)}}\"}' || echo '{\"text\":\"No Media\"}'",
+    "exec-if": "which playerctl",
+    "on-click": "qs ipc call mediaControls toggle",
+    "interval": 3,
+  },
+  
+  "custom/notify": {
+    "format": "<span size='12000'> </span>",
+    "tooltip": "Notifications",
+    "on-click": "qs ipc call sidebarRight toggle",
+    "interval": 0
+  },
+  
+  "bluetooth": {
+    "format": "<span size='12000'> </span>",
+    "format-connected": "<span size='12000' foreground='#8cb6ff'></span>",
+    "tooltip-format": "{status}",
+    "on-click": "blueman-manager"
+  },
 
-    "group/hardware": {
-        "orientation": "inherit",
-        "drawer": {
-            "transition-duration": 300,
-            "children-class": "not-memory",
-            "transition-left-to-right": false
-        },
-        "modules": [
-            "custom/system",
-            "cpu",
-            "temperature",
-            "disk",
-            "memory"
-        ]
-    },
-
-    "custom/system": {
-        "format": "<span size='small'>  </span>",
-        "tooltip": false
-    },
-
-    "cpu": {
-        "format": " 󰍛 {usage}% ",
-        "on-click": "kitty btop"
-    },
-
-    "temperature": {
-        "format": " 󰈸 {temperatureC}°C ",
-        "on-click": "kitty btop"
-    },
-
-    "disk": {
-        "interval": 30,
-        "format": " 󰋊 {percentage_used}% ",
-        "path": "/",
-        "on-click": "kitty btop"
-    },
-
-    "memory": {
-        "format": "  {}% ",
-        "on-click": "kitty btop"
-    },
-
-    "pulseaudio": {
-        "scroll-step": 1,
-        "format": "{icon} {volume}%",
-        "format-bluetooth": "{volume}% {icon} {format_source}",
-        "format-bluetooth-muted": "󰖁 {icon} {format_source}",
-        "format-muted": "󰖁 {format_source}",
-        "format-source": "{volume}% ",
-        "format-source-muted": "",
-        "format-icons": {
-            "headphone": "",
-            "phone": "",
-            "car": "",
-            "default": ["", "", ""]
-        },
-        "on-click": "pavucontrol"
-    },
-
-    "bluetooth": {
-        "format": " {status}",
-        "format-disabled": " {status}",
-        "format-off": " {status}",
-        "interval": 30,
-        "on-click": "blueman-manager",
-        "format-no-controller": ""
-    },
-
-    "network": {
-        "format": "{ifname}",
-        "format-wifi": " {signalStrength}%",
-        "format-ethernet": "󰌘 {ifname}",
-        "format-disconnected": "disconnected",
-        "tooltip-format": "󰌘 {ifname} via {gwaddri}",
-        "tooltip-format-wifi": " {ifname} @ {essid}\nIP: {ipaddr}\nStrength: {signalStrength}%\nFreq: {frequency}MHz\n {bandwidthUpBits}  {bandwidthDownBits}",
-        "tooltip-format-ethernet": "󰌘 {ifname}\nIP: {ipaddr}\n  {bandwidthUpBits}  {bandwidthDownBits}",
-        "tooltip-format-disconnected": "disconnected",
-        "max-length": 50,
-        "on-click": "nm-connection-editor"
-    },
-
-    "battery": {
-        "states": {
-            "good": 95,
-            "warning": 30,
-            "critical": 10
-        },
-        "format": "{icon} {capacity}%",
-        "format-charging": " {capacity}%",
-        "format-plugged": " {capacity}%",
-        "format-icons": ["", "", "", "", ""]
-    },
-
-    "custom/exit": {
-        "format": "",
-        "on-click": "wlogout -b 2",
-        "tooltip": false
+  "hyprland/window": {
+    "format": "{title}",
+    "max-length": 54,
+    "rewrite": {
+      "": "Empty Workspace"   // if no title
     }
+  },
+
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "",
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": [" ", " " ]
+    },
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-click-right": "pavucontrol"
+  },
+
+  "network": {
+    "format-wifi": "<span size='12000'> </span> {essid} ({signalStrength}%)",
+    "format-ethernet": "<span size='12000'>󰈀</span> {ifname}",
+    "format-disconnected": "<span size='12000' foreground='#928374'>󰖪</span> Disconnected",
+    "tooltip-format": "{ifname} via {gwaddr}\nIP: {ipaddr}/{cidr}",
+    "max-length": 100,
+    "interval": 5
+  },
+
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 8
+  },
+
+  "battery": {
+    "states": {
+      "critical": 15
+    },
+    "format": "<span size='13000'>{icon} </span>{capacity}%",
+    "format-warning": "<span size='13000'>{icon} </span>{capacity}%",
+    "format-critical": "<span size='13000'>{icon} </span>{capacity}%",
+    "format-charging": "<span size='13000' foreground='#8cb6ff'>󰂄 </span>{capacity}%",
+    "format-plugged": "<span size='13000' foreground='#8cb6ff'>󰂄 </span>{capacity}%",
+    "format-full": "<span size='13000' foreground='#8cb6ff'>󰂄 </span>{capacity}%",
+    "format-icons": ["󰁺","󰁼","󰁾","󰂀","󰂂"],
+    "tooltip-format": "Time remaining: {time}\nPower draw: {power}W"
+  }
 }
