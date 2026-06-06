@@ -18,8 +18,6 @@ hl.bind(mainMod .. " + A",      hl.dsp.exec_cmd("rofi -show audio-output -theme 
 hl.bind(mainMod .. " + I",      hl.dsp.exec_cmd("rofi -show microphone -theme ~/.config/rofi/microphone.rasi"))
 hl.bind(mainMod .. " + P",      hl.dsp.exec_cmd("rofi -show performance-profile -theme ~/.config/rofi/performance-profile.rasi"))
 hl.bind(mainMod .. " + C",      hl.dsp.exec_cmd("bash -c 'cliphist list | rofi -dmenu -theme ~/.config/rofi/config.rasi | cliphist decode | wl-copy'"))
-hl.bind(mainMod .. " + S",      hl.dsp.exec_cmd("grim ~/Pictures/$(date +%Y%m%d_%H%M%S).png"))
-hl.bind(secondMod .. " + S",    hl.dsp.exec_cmd("grim -g '$(slurp)' ~/Pictures/$(date +%Y%m%d_%H%M%S).png"))
 
 hl.bind(secondMod .. " + Q", hl.dsp.window.close())
 hl.bind(secondMod .. " + P", hl.dsp.window.pseudo())
