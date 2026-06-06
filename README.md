@@ -73,6 +73,8 @@ yay -S \
     rofi-calc \
     ripgrep \
     rofi-wayland \
+    smartmontools \
+    openssh
     slurp \
     starship \
     tmux \
