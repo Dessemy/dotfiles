@@ -45,6 +45,7 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 
 ```bash
 yay -S \
+    awww \
     hyprlock \
     hypridle \
     hyprsunset \
@@ -53,7 +54,7 @@ yay -S \
     rofi-wayland \
     rofi-calc \
     mako \
-    awww
+    tuigreet
 ```
 
 ### Audio
@@ -174,6 +175,23 @@ if [[ -d "$XDG_CONFIG_HOME/zsh" ]]; then
 fi
 ```
 
+## 5. Configure Greetd
+
+###
+
+Edit `/etc/greetd/config.toml`:
+
+Add
+
+```bash
+[terminal]
+vt = 1
+
+[default_session]
+command = "tuigreet --time --remember --remember-session --sessions /usr/share/wayland-sessions --theme 'border=cyan;text=white;prompt=green;time=blue;action=blue;button=cyan;container=black;input=gray'"
+user = "greeter"
+```
+
 ### Reboot
 
 ```bash
@@ -182,4 +200,4 @@ reboot
 
 ---
 
-## 5. Notes
+## 6. Notes
