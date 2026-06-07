@@ -1,4 +1,4 @@
-> My personal Hyprland configuration for Arch Linux — opinionated, and minimal.
+> My personal Hyprland setup for Arch Linux — opinionated, and minimal.
 
 ---
 
@@ -15,7 +15,8 @@
    - [Media](#media)
 3. [Setup Dotfiles](#3-setup-dotfiles)
 4. [Configure ZSH](#4-configure-zsh)
-5. [Notes](#5-notes)
+5. [Configure Greetd](#5-configure-greetd)
+6. [Notes](#6-notes)
 
 ---
 
@@ -23,7 +24,7 @@
 
 ### Debloat
 
-Remove packages that conflict with or are replaced by this setup:
+Remove packages that'll get replaced by this setup:
 
 ```bash
 sudo pacman -Rns dolphin dunst htop nano uwsm vim wofi
@@ -31,7 +32,7 @@ sudo pacman -Rns dolphin dunst htop nano uwsm vim wofi
 
 ### Install Base Tools
 
-Install `git`, `base-devel`, and the AUR helper `yay`:
+Grab `git`, `base-devel`, and the AUR helper `yay`:
 
 ```bash
 sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si
@@ -45,7 +46,7 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 
 ```bash
 yay -S \
-    awww \
+    swww \
     hyprlock \
     hypridle \
     hyprsunset \
@@ -89,7 +90,7 @@ yay -S \
     noto-fonts-cjk \
     noto-fonts-emoji
 
-# Refresh font cache
+# Refresh cache
 fc-cache -fv
 ```
 
@@ -136,7 +137,7 @@ cp -r ~/dotfiles/.config/* ~/.config/
 chmod +x ~/.config/rofi/scripts/*
 ```
 
-> **Warning:** This replaces your entire `~/.config` directory.
+> **Warning:** This will wipe your entire `~/.config` directory. Back it up first if you need anything from there.
 
 ---
 
@@ -163,7 +164,7 @@ Edit `/etc/zsh/zshenv` as root:
 sudo nvim /etc/zsh/zshenv
 ```
 
-Add the following lines:
+Add the following:
 
 ```bash
 if [[ -z "$XDG_CONFIG_HOME" ]]; then
@@ -175,9 +176,9 @@ if [[ -d "$XDG_CONFIG_HOME/zsh" ]]; then
 fi
 ```
 
-## 5. Configure Greetd
+---
 
-### Set
+## 5. Configure Greetd
 
 Edit `/etc/greetd/config.toml`:
 
@@ -185,9 +186,9 @@ Edit `/etc/greetd/config.toml`:
 sudo nvim /etc/greetd/config.toml
 ```
 
-Add
+Add the following:
 
-```bash
+```toml
 [terminal]
 vt = 1
 
