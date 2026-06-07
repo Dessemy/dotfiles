@@ -1,6 +1,4 @@
-# Hyprland Setup
-
-> My personal Hyprland configuration for Arch Linux — opinionated, minimal, and Gruvbox-themed.
+> My personal Hyprland configuration for Arch Linux — opinionated, and minimal.
 
 ---
 
