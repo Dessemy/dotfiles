@@ -1,5 +1,6 @@
 local mainMod   = "SUPER"
 local secondMod = "SUPER + SHIFT"
+local thirdMod = "SUPER + CTRL"
 
 for i = 1, 10 do
     local key = i % 10
@@ -18,6 +19,9 @@ hl.bind(mainMod .. " + A",      hl.dsp.exec_cmd("rofi -show audio-output -theme 
 hl.bind(mainMod .. " + I",      hl.dsp.exec_cmd("rofi -show microphone -theme ~/.config/rofi/microphone.rasi"))
 hl.bind(mainMod .. " + P",      hl.dsp.exec_cmd("rofi -show performance-profile -theme ~/.config/rofi/performance-profile.rasi"))
 hl.bind(mainMod .. " + C",      hl.dsp.exec_cmd("bash -c 'cliphist list | rofi -dmenu -theme ~/.config/rofi/config.rasi | cliphist decode | wl-copy'"))
+hl.bind(mainMod .. " + S",      hl.dsp.exec_cmd("bash -c 'grim ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Fullscreen saved\" -i camera-photo'"))
+hl.bind(thirdMod .. " + S",     hl.dsp.exec_cmd("bash -c 'grim -g \"$(slurp)\" ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Area saved\" -i camera-photo'"))
+hl.bind(secondMod .. " + S",    hl.dsp.exec_cmd("bash -c 'grim -g \"$(hyprctl activewindow -j | jq -r \".at[0],\\\"\\\",.at[1],\\\" \\\",(.size[0]),\\\"x\\\",.size[1]\" | tr -d \\\"\\n\\\")\" ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Window saved\" -i camera-photo'"))
 
 hl.bind(secondMod .. " + Q", hl.dsp.window.close())
 hl.bind(secondMod .. " + P", hl.dsp.window.pseudo())
