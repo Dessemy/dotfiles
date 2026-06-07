@@ -1,15 +1,4 @@
 # Powerful but minimal zsh configuration
-# Author: Radley E. Sidwell-Lewis
-# GitHub: https://www.github.com/radleylewis/zsh
-#
-# Uses:
-#   Plugins:      fast-syntax-highlighting, zsh-autosuggestions,
-#                 zsh-history-substring-search, zsh-vi-mode
-#   Prompt:       starship
-#   Navigation:   zoxide, fzf, fd
-#   CLI tools:    eza, bat, nvim, ripgrep
-#   Node:         nvm
-
 # =========================================================
 # History
 # =========================================================
