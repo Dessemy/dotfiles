@@ -1,6 +1,6 @@
 * {
     border: none;
-    border-radius: 1px;
+    border-radius: 0px;
     font-family: JetBrains Mono;
     font-size: 13px;
     font-style: normal;
@@ -17,7 +17,7 @@ window#waybar {
     background: #1a1f22;
     margin: 5px 5px;
     padding: 8px 5px;
-    border-radius: 16px;
+    border-radius: 0px;
     border: solid 0px #cacccc;
     font-weight: normal;
     font-style: normal;
@@ -25,7 +25,7 @@ window#waybar {
 #workspaces button {
     padding: 0px 5px;
     margin: 0px 3px;
-    border-radius: 16px;
+    border-radius: 0px;
     color: #1a1f22;
     background-color: #343d41;
     transition: all 0.3s ease-in-out;
@@ -33,7 +33,7 @@ window#waybar {
 #workspaces button.active {
     color: #1a1f22;
     background-color: #798186;
-    border-radius: 16px;
+    border-radius: 0px;
     min-width: 50px;
     background-size: 400% 400%;
     transition: all 0.3s ease-in-out;
@@ -41,7 +41,7 @@ window#waybar {
 #workspaces button:hover {
     background-color: #343d41;
     color: #1a1f22;
-    border-radius: 16px;
+    border-radius: 0px;
     min-width: 50px;
     background-size: 400% 400%;
 }
@@ -50,7 +50,7 @@ window#waybar {
     background: transparent;
     padding: 5px 5px 5px 5px;
     margin: 5px 5px 5px 5px;
-    border-radius: 8px;
+    border-radius: 0px;
     border: solid 0px #798186;
 }
 
@@ -68,7 +68,7 @@ window#waybar {
  {
     background: #1a1f22;
     margin: 5px 5px 5px 5px;
-    border-radius: 28px;
+    border-radius: 0px;
     padding: 0px 12px;
 }
 
@@ -76,7 +76,7 @@ window#waybar {
 	background: #1a1f22;
 	padding-left: 15px;
   padding-right: 14px;
-	border-radius: 16px;
+	border-radius: 0px;
   margin-top: 5px;
   margin-bottom: 5px;
   margin-left: 10px;
@@ -90,7 +90,7 @@ window#waybar {
   background: #1a1f22;
   padding-left: 15px;
   padding-right: 14px;
-  border-radius: 16px;
+  border-radius: 0px;
   margin-top: 5px;
   margin-bottom: 5px;
   margin-left: 3px;
@@ -103,7 +103,7 @@ window#waybar {
 #network {
     background: #1a1f22;
     padding: 4px 12px;
-    border-radius: 16px;
+    border-radius: 0px;
     margin: 5px 0 5px 0;
     font-weight: normal;
     font-style: normal;
@@ -135,14 +135,14 @@ window#waybar {
 
 #pulseaudio {
     color: #cacccc;
-    border-radius: 8px;
+    border-radius: 0px;
     margin-left: 0px;
     font-weight: bold;
 }
 
 #custom-playerctl {
   background: #1a1f22;
-  border-radius: 16px 0 0 16px; /* rounded left */
+  border-radius: 0px;
   padding: 5px 8px;
   margin: 5px 0 5px 5px;
   color: #cacccc;
@@ -150,7 +150,7 @@ window#waybar {
 
 #custom-playerlabel {
   background: #1a1f22;
-  border-radius: 0 16px 16px 0; /* rounded right */
+  border-radius: 0px;
   padding: 5px 10px;
   margin: 5px 5px 5px 0;
   font-weight: normal;
@@ -162,7 +162,7 @@ window#waybar {
 
 #bluetooth {
   background: #1a1f22;
-  border-radius: 16px 0 0 16px; /* left pill side */
+  border-radius: 0px;
   padding: 5px 10px;
   margin: 5px 0 5px 5px;
   font-size: 16px;
@@ -171,7 +171,7 @@ window#waybar {
 
 #custom-notify {
   background: #1a1f22;
-  border-radius: 0 16px 16px 0; /* right pill side */
+  border-radius: 0px;
   padding: 5px 10px;
   margin: 5px 5px 5px 0;
   font-size: 16px;
@@ -182,7 +182,7 @@ window#waybar {
 	background: #1a1f22;
 	padding-left: 15px;
   padding-right: 14px;
-	border-radius: 16px;
+	border-radius: 0px;
   margin-top: 5px;
   margin-bottom: 5px;
   margin-left: 0px;
@@ -197,7 +197,7 @@ window#waybar {
     background: #1a1f22;
     padding-left: 15px;
     padding-right: 15px;
-    border-radius: 16px;
+    border-radius: 0px;
     margin-top: 5px;
     margin-bottom: 5px;
     margin-left: 10px;
