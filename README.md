@@ -177,9 +177,13 @@ fi
 
 ## 5. Configure Greetd
 
-###
+### Set
 
 Edit `/etc/greetd/config.toml`:
+
+```bash
+sudo nvim /etc/greetd/config.toml
+```
 
 Add
 
@@ -188,7 +192,7 @@ Add
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --remember-session --sessions /usr/share/wayland-sessions --theme 'border=cyan;text=white;prompt=green;time=blue;action=blue;button=cyan;container=black;input=gray'"
+command = "tuigreet --time --remember --remember-session --sessions /usr/share/wayland-sessions --theme 'border=cyan;text=#cacccc;prompt=#cacccc;time=#cacccc;action=cyan;button=cyan;container=#101315;input=white'"
 user = "greeter"
 ```
 
