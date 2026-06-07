@@ -130,6 +130,9 @@ Clone and apply the dotfiles:
 ```bash
 git clone https://github.com/Dessemy/dotfiles.git ~/dotfiles
 rm -rf ~/.config
+```
+
+```bash
 cp -r ~/dotfiles/.config/* ~/.config/
 chmod +x ~/.config/rofi/scripts/*
 ```
