@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# power-manager.sh - rofi power menu (lock, logout, sleep, shutdown, reboot)
+
+SHUTDOWN_ICON=""
+REBOOT_ICON=""
+SLEEP_ICON="󰤄"
+LOCK_ICON=""
+LOGOUT_ICON="󰗽"
+YES_ICON=""
+NO_ICON=""
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+get_uptime() {
+    uptime -p | sed 's/^up //'
+}
+
+get_init_system() {
+    ps --pid 1 -o comm= 2>/dev/null || echo "unknown"
+}
+
+main_menu() {
+    local uptime
+    uptime=$(get_uptime)
+    printf '%s\n%s\n%s\n%s\n%s\n' \
+        "$LOCK_ICON" "$LOGOUT_ICON" "$SLEEP_ICON" "$SHUTDOWN_ICON" "$REBOOT_ICON" \
+    | rofi -dmenu \
+           -p "Uptime: $uptime" \
+           -mesg "Uptime: $uptime" \
+           -theme "${CONFIG_DIR}/rofi/common.rasi"
+}
+
+confirm() {
+    printf '%s\n%s\n' "$YES_ICON" "$NO_ICON" \
+    | rofi -dmenu \
+           -p "Confirmation" \
+           -mesg "Confirm?" \
+           -theme "${CONFIG_DIR}/rofi/common.rasi" \
+           -theme-str "listview {columns: 2; lines: 1;}"
+}
+
+power() {
+    local selected
+    selected=$(main_menu)
+    [[ -z "$selected" ]] && exit 0
+
+    local init
+    init=$(get_init_system)
+
+    local poweroff_cmd reboot_cmd
+    if [[ "$init" == "systemd" ]]; then
+        poweroff_cmd="systemctl poweroff"
+        reboot_cmd="systemctl reboot"
+    else
+        poweroff_cmd="loginctl poweroff"
+        reboot_cmd="loginctl reboot"
+    fi
+
+    case "$selected" in
+        "$LOCK_ICON")
+            hyprlock
+            ;;
+        "$SLEEP_ICON")
+            if [[ "$(confirm)" == "$YES_ICON" ]]; then
+                bash "$HOME/.config/qtile/scripts/sleep.sh"
+            fi
+            ;;
+        "$LOGOUT_ICON")
+            if [[ "$(confirm)" == "$YES_ICON" ]]; then
+                pkill -KILL -u "$USER"
+            fi
+            ;;
+        "$SHUTDOWN_ICON")
+            if [[ "$(confirm)" == "$YES_ICON" ]]; then
+                $poweroff_cmd
+            fi
+            ;;
+        "$REBOOT_ICON")
+            if [[ "$(confirm)" == "$YES_ICON" ]]; then
+                $reboot_cmd
+            fi
+            ;;
+    esac
+}
+
+power
