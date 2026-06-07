@@ -42,11 +42,11 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 
 ## 2. Install Packages
 
-### Core — Hyprland & Wayland
+### Core
 
 ```bash
 yay -S \
-    swww \
+    awww \
     hyprlock \
     hypridle \
     hyprsunset \
