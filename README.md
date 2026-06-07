@@ -6,7 +6,7 @@
 
 1. [Prerequisites](#1-prerequisites)
 2. [Install Packages](#2-install-packages)
-   - [Core — Hyprland & Wayland](#core--hyprland--wayland)
+   - [Core](#core)
    - [Audio](#audio)
    - [Bluetooth](#bluetooth)
    - [Terminal & Shell](#terminal--shell)
