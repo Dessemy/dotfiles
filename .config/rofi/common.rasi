@@ -83,7 +83,7 @@ element {
     background-color:            @bg-alt;
     text-color:                  @active;
     cursor:                      pointer;
-    border-radius:               4px;
+    border-radius:               0px;
 }
 element-text {
     background-color:            transparent;
