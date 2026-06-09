@@ -1,22 +1,4 @@
-> My personal Hyprland setup for Arch Linux — opinionated, and minimal.
-
----
-
-## Table of Contents
-
-1. [Prerequisites](#1-prerequisites)
-2. [Install Packages](#2-install-packages)
-   - [Core](#core)
-   - [Audio](#audio)
-   - [Bluetooth](#bluetooth)
-   - [Terminal & Shell](#terminal--shell)
-   - [Fonts](#fonts)
-   - [Utilities](#utilities)
-   - [Media](#media)
-3. [Setup Dotfiles](#3-setup-dotfiles)
-4. [Configure ZSH](#4-configure-zsh)
-5. [Configure Greetd](#5-configure-greetd)
-6. [Notes](#6-notes)
+> Personal Hyprland
 
 ---
 
