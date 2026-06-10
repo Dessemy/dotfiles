@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# utils.sh - shared utility functions
+
+timestamp_file() {
+    local prefix="$1"
+    local ext="$2"
+    local folder="$3"
+    local ts
+    ts=$(date +"%Y%m%d_%H%M%S")
+    echo "${folder}/${prefix}_${ts}.${ext}"
+}
+
+take_screenshot() {
+    local IMAGE_DIR="$HOME/Pictures/Screenshots"
+    mkdir -p "$IMAGE_DIR"
+    local out
+    out=$(timestamp_file "screenshot" "png" "$IMAGE_DIR")
+    grim "$out" &
+    notify "Screenshot Taken" "$out"
+}
+
+notify() {
+    local title="$1"
+    local message="$2"
+    local replace_id="${3:-}"
+    local app_name="${4:-}"
+    local expire_time="${5:-1200}"
+    local urgency="${6:-normal}"
+
+    local cmd=(notify-send)
+    [[ -n "$replace_id" ]] && cmd+=(--replace-id="$replace_id")
+    [[ -n "$app_name" ]]   && cmd+=(--app-name="$app_name")
+    cmd+=(--urgency="$urgency" --expire-time="$expire_time")
+    "${cmd[@]}" "$title" "$message" 2>/dev/null || true
+}
+
+get_audio_input_device() {
+    local source desc
+    source=$(pactl get-default-source 2>/dev/null) || { echo "No Mic"; return; }
+
+    desc=$(pactl list sources 2>/dev/null \
+        | awk -v src="$source" '
+            /^Source #/ { found=0 }
+            $0 ~ src    { found=1 }
+            found && /Description:/ {
+                sub(/.*Description:[[:space:]]*/, "")
+                print
+                exit
+            }
+        ')
+
+    echo "${desc:-$source}"
+}

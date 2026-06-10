@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+# av-recorder.sh - rofi audio/video recorder menu
+# Depends on: wf-recorder, ffmpeg, grim, slurp, notify-send, pactl
+
+source "$(dirname "$0")/utils.sh"
+
+VIDEO_DIR="$HOME/Videos"
+
+STOP_ICON="󰓛"
+
+OPT_REGION="󰩭 Region"
+OPT_SCREEN_MIC="󰍹 󰍬"
+OPT_SCREEN_SYS="󰍹 󰕾"
+OPT_SCREEN_ONLY="󰍹 󰖁"
+OPT_AUDIO_ONLY="󰍬"
+OPT_SCREENSHOT="󰄀"
+
+get_cmd_for() {
+    local process="$1"
+    local pid
+    pid=$(pgrep -f "$process" 2>/dev/null | head -1) || return 1
+    ps -p "$pid" -o args --no-headers 2>/dev/null
+}
+
+take_region_screenshot() {
+    local IMAGE_DIR="$HOME/Pictures/Screenshots"
+    mkdir -p "$IMAGE_DIR"
+    local out
+    out=$(timestamp_file "screenshot" "png" "$IMAGE_DIR")
+    (sleep 0.3
+     region=$(slurp) && \
+     grim -g "$region" "$out" && \
+     notify-send 'Screenshot Taken' "$out") &
+}
+
+get_recording_info() {
+    local wf ff mic_name parts i outfile audio rec_type
+    mic_name=$(get_audio_input_device)
+
+    wf=$(get_cmd_for "wf-recorder") && {
+        if [[ "$wf" == *"--audio=default"* ]]; then
+            audio="microphone ($mic_name)"
+        elif [[ "$wf" == *"--audio"* ]]; then
+            audio="system audio"
+        else
+            audio="silent"
+        fi
+        read -ra parts <<< "$wf"
+        outfile="unknown"
+        for i in "${!parts[@]}"; do
+            [[ "${parts[$i]}" == "-f" ]] && outfile="${parts[$((i+1))]}" && break
+        done
+        echo "screen|$audio|$outfile"
+        return 0
+    }
+
+    ff=$(get_cmd_for "ffmpeg") && {
+        audio="microphone ($mic_name)"
+        outfile="${ff##* }"
+        echo "audio-only|$audio|$outfile"
+        return 0
+    }
+
+    return 1
+}
+
+start_screen_mic() {
+    local mic out
+    mic=$(get_audio_input_device)
+    mkdir -p "$VIDEO_DIR"
+    out=$(timestamp_file "recording" "mp4" "$VIDEO_DIR")
+    wf-recorder --audio=default -f "$out" &>/dev/null &
+    disown
+    notify "Recording Started" "Screen + microphone ($mic)\n$out"
+}
+
+start_screen_system_audio() {
+    local out
+    mkdir -p "$VIDEO_DIR"
+    out=$(timestamp_file "recording" "mp4" "$VIDEO_DIR")
+    wf-recorder --audio -f "$out" &>/dev/null &
+    disown
+    notify "Recording Started" "Screen + system audio\n$out"
+}
+
+start_audio_only() {
+    local mic out
+    mic=$(get_audio_input_device)
+    mkdir -p "$VIDEO_DIR"
+    out=$(timestamp_file "audio" "mp3" "$VIDEO_DIR")
+    ffmpeg -f pulse -i default -c:a mp3 "$out" &>/dev/null &
+    disown
+    notify "Audio Recording" "Mic: $mic\n$out"
+}
+
+start_screen_silent() {
+    local out
+    mkdir -p "$VIDEO_DIR"
+    out=$(timestamp_file "recording" "mp4" "$VIDEO_DIR")
+    wf-recorder -f "$out" &>/dev/null &
+    disown
+    notify "Recording Started" "Screen only\n$out"
+}
+
+stop_recording() {
+    pkill -f wf-recorder 2>/dev/null || true
+    pkill -f ffmpeg       2>/dev/null || true
+    notify "Recording Stopped" "Saved to Videos"
+}
+
+prompt_stop_recording() {
+    local rec_type="$1" audio="$2" outfile="$3"
+    local msg="<b>Active recording</b> | Type: $rec_type | Audio: $audio | File: $outfile"
+    printf '\0message\x1f%s\n' "$msg"
+    printf '%s\0info\x1f%s\n' "$STOP_ICON" "$STOP_ICON"
+}
+
+show_recording_options() {
+    printf '\0message\x1fStart Recording\n'
+    printf '%s\0info\x1f%s\n' "$OPT_REGION"      "$OPT_REGION"
+    printf '%s\0info\x1f%s\n' "$OPT_SCREEN_MIC"  "$OPT_SCREEN_MIC"
+    printf '%s\0info\x1f%s\n' "$OPT_SCREEN_SYS"  "$OPT_SCREEN_SYS"
+    printf '%s\0info\x1f%s\n' "$OPT_SCREEN_ONLY" "$OPT_SCREEN_ONLY"
+    printf '%s\0info\x1f%s\n' "$OPT_AUDIO_ONLY"  "$OPT_AUDIO_ONLY"
+    printf '%s\0info\x1f%s\n' "$OPT_SCREENSHOT"  "$OPT_SCREENSHOT"
+}
+
+main() {
+    local retv="${ROFI_RETV:-0}"
+
+    if [[ "$retv" -eq 0 ]]; then
+        local info
+        if info=$(get_recording_info); then
+            IFS='|' read -r rec_type audio outfile <<< "$info"
+            prompt_stop_recording "$rec_type" "$audio" "$outfile"
+        else
+            show_recording_options
+        fi
+
+    elif [[ "$retv" -eq 1 ]]; then
+        local sel="$ROFI_INFO"
+        case "$sel" in
+            "$STOP_ICON")        stop_recording ;;
+            "$OPT_REGION")       take_region_screenshot ;;
+            "$OPT_SCREEN_MIC")   start_screen_mic ;;
+            "$OPT_SCREEN_SYS")   start_screen_system_audio ;;
+            "$OPT_SCREEN_ONLY")  start_screen_silent ;;
+            "$OPT_SCREENSHOT")   take_screenshot ;;
+            "$OPT_AUDIO_ONLY")   start_audio_only ;;
+        esac
+    fi
+}
+
+main "$@"

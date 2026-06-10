@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# microphone.sh - rofi microphone input switcher
+
+MIC_ICON="󰍬"
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+_get_sources() {
+    pactl list sources | awk '
+        /^Source #/    { if (name) print name "|" desc; name=""; desc="" }
+        /Name:/         { sub(/.*Name:[[:space:]]*/, ""); name=$0 }
+        /Description:/  { sub(/.*Description:[[:space:]]*/, ""); desc=$0 }
+        END             { if (name) print name "|" desc }
+    '
+}
+
+_get_current_source() {
+    pactl get-default-source
+}
+
+show_microphone_menu() {
+    local current
+    current=$(_get_current_source)
+
+    printf '\0prompt\x1fMicrophone\n'
+    printf '\0message\x1fCurrent Input: %s\n' "$current"
+
+    while IFS='|' read -r name desc; do
+        local label="$desc"
+        [[ "$name" == "$current" ]] && label="[current] $desc"
+        printf '%s %s\0info\x1f%s|%s %s\n' \
+            "$MIC_ICON" "$label" "$name" "$MIC_ICON" "$label"
+    done < <(_get_sources)
+}
+
+set_microphone() {
+    local name="$1"
+    local label="$2"
+    pactl set-default-source "$name"
+    notify-send "󰍬 Microphone Changed" "Now using: $label" \
+        --expire-time=3000 -u normal 2>/dev/null || true
+}
+
+main() {
+    if [[ -n "$ROFI_INFO" ]]; then
+        IFS='|' read -r name label <<< "$ROFI_INFO"
+        set_microphone "$name" "$label"
+    else
+        show_microphone_menu
+    fi
+}
+
+main "$@"
