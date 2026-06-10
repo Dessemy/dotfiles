@@ -14,83 +14,43 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 
 ---
 
-## 2. Install Packages
+## what gets installed
 
-### Core
+### Core components
 - **awww**
 - **hyprlock**
-    hypridle \
-    hyprsunset \
-    hyprpicker \
-    waybar \
-    rofi-wayland \
-    rofi-calc \
-    mako \
-    tuigreet
-```
-
-### Audio
-
-```bash
-yay -S \
-    pavucontrol
-```
-
-### Bluetooth
-
-```bash
-yay -S \
-    blueman
-```
-
-### Terminal & Shell
-
-```bash
-yay -S \
-    zsh \
-    starship \
-    tmux \
-    zoxide
-```
-
-### Fonts
-
-```bash
-yay -S \
-    ttf-jetbrains-mono-nerd \
-    noto-fonts-cjk \
-    noto-fonts-emoji
-
-# Refresh cache
-fc-cache -fv
-```
-
-### Utilities
-
-```bash
-yay -S \
-    neovim \
-    bat \
-    btop \
-    brightnessctl \
-    cliphist \
-    eza \
-    fd \
-    fzf \
-    imv \
-    jq \
-    nwg-look \
-    ripgrep \
-    wl-clipboard
-```
-
-### Media
-
-```bash
-yay -S \
-    mpv \
-    ffmpegthumbnailer
-```
+- **hypridle**
+- **hyprsunset**
+- **hyprpicker**
+- **waybar**
+- **rofi-wayland**
+- **rofi-calc**
+- **mako**
+- **tuigreet**
+- **pavucontrol**
+- **blueman**
+- **zsh**
+- **starship**
+- **tmux**
+- **zoxide**
+- **ttf-jetbrains-mono-nerd**
+- **noto-fonts-cjk**
+- **noto-fonts-emoj**
+- **neovim**
+- **bat**
+- **btop**
+- **brightnessctl**
+- **cliphist**
+- **eza**
+- **fd**
+- **fzf**
+- **imv**
+- **jq**
+- **nwg-look**
+- **ripgrep**
+- **wl-clipboard**
+- **mpv**
+- **ffmpegthumbnailer
 
 ---
 
