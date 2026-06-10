@@ -52,6 +52,10 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 - **mpv**
 - **ffmpegthumbnailer**
 
+```bash
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
+
 ---
 
 ## 3. Setup Dotfiles
