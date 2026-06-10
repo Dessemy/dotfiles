@@ -50,22 +50,19 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 - **ripgrep**
 - **wl-clipboard**
 - **mpv**
-- **ffmpegthumbnailer
+- **ffmpegthumbnailer**
 
 ---
 
 ## 3. Setup Dotfiles
 
-Clone and apply the dotfiles:
-
 ```bash
-git clone https://github.com/Dessemy/dotfiles.git ~/dotfiles
-rm -rf ~/.config
-```
+# Clone the repository
+https://github.com/Dessemy/dotfiles.git
+cd dotfiles
 
-```bash
-cp -r ~/dotfiles/.config/* ~/.config/
-chmod +x ~/.config/rofi/scripts/*
+# Run the installer
+./install.sh
 ```
 
 > **Warning:** This will wipe your entire `~/.config` directory. Back it up first if you need anything from there.
