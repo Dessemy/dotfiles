@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+dir="$HOME/.config/rofi"
+theme='config'
+
+## Run
+rofi \
+    rofi -modi clipboard:~/.config/rofi/scripts/cliphist -show clipboard -theme ${dir}/${theme}.rasi    
