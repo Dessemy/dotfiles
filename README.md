@@ -4,14 +4,6 @@
 
 ## 1. Prerequisites
 
-### Debloat
-
-Remove packages that'll get replaced by this setup:
-
-```bash
-sudo pacman -Rns dolphin dunst htop nano uwsm vim wofi
-```
-
 ### Install Base Tools
 
 Grab `git`, `base-devel`, and the AUR helper `yay`:
@@ -25,11 +17,8 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 ## 2. Install Packages
 
 ### Core
-
-```bash
-yay -S \
-    awww \
-    hyprlock \
+- **awww**
+**hyprlock**
     hypridle \
     hyprsunset \
     hyprpicker \
