@@ -18,7 +18,7 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 
 ### Core
 - **awww**
-**hyprlock**
+- **hyprlock**
     hypridle \
     hyprsunset \
     hyprpicker \
