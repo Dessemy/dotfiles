@@ -35,10 +35,10 @@ hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
 # LookNfeel
 hl.config({
     general = {
-        gaps_in  = 10,
-        gaps_out = 15,
+        gaps_in  = 5,
+        gaps_out = 10,
 
-        border_size = 5,
+        border_size = 2,
 
         col = {
             active_border   = "rgb(798186)",
@@ -51,7 +51,7 @@ hl.config({
     },
 
     decoration = {
-        rounding       = 10,
+        rounding       = 5,
         rounding_power = 5,
 
         active_opacity   = 0.7,
