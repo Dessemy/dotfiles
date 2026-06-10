@@ -1,0 +1,18 @@
+* {
+    bg: #1d2021; bg1: #282828; bg2: #3c3836;
+    fg: #ebdbb2; fg-dim: #a89984; accent: #d79921;
+    select-bg: #32302f; select-fg: #ebdbb2; urgent: #cc241d;
+    background-color: transparent; text-color: @fg;
+    font: "JetBrainsMono Nerd Font 11";
+}
+window { background-color: @bg; border: 1px solid @bg2; border-radius: 0px; width: 420px; padding: 0px; }
+mainbox { background-color: transparent; padding: 0px; spacing: 0px; }
+inputbar { background-color: @bg1; padding: 10px 14px; spacing: 8px; children: [ prompt, entry ]; }
+prompt { background-color: transparent; text-color: @accent; font: "JetBrainsMono Nerd Font Bold 11"; }
+entry { background-color: transparent; text-color: @fg; placeholder: "search..."; placeholder-color: #665c54; }
+message { background-color: @bg; padding: 4px 14px; border: 0px 0px 1px 0px solid @bg2; }
+textbox { background-color: transparent; text-color: @fg-dim; font: "JetBrainsMono Nerd Font 9"; }
+listview { background-color: transparent; padding: 6px 0px; spacing: 0px; lines: 8; fixed-height: true; scrollbar: false; }
+element { background-color: transparent; padding: 8px 14px; border-radius: 0px; }
+element selected { background-color: @select-bg; text-color: @select-fg; border: 0px 0px 0px 2px solid @accent; }
+element-text { background-color: transparent; text-color: inherit; highlight: bold @accent; }
