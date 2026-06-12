@@ -17,7 +17,7 @@ configuration {
     urgent:         #c45a5aFF;
 }
 * {
-    font: "JetBrains Mono 14";
+    font: "Fira Code 14";
 }
 
 /*****----- Main Window -----*****/
