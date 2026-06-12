@@ -120,7 +120,7 @@ hl.animation({ leaf = "workspacesIn",  enabled = true, speed = 1.21, bezier = "a
 hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "zoomFactor",    enabled = true, speed = 7,    bezier = "quick" })
 
-suppressMaximizeRule = hl.window_rule({
+local suppressMaximizeRule = hl.window_rule({
     name  = "suppress-maximize-events",
     match = { class = ".*" },
 
