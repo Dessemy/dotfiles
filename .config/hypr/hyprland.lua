@@ -3,7 +3,7 @@ hl.monitor({
     output   = "",
     mode     = "preferred",
     position = "auto",
-    scale    = "0.75",
+    scale    = "1.20",
 })
 
 --Autostart
@@ -38,14 +38,14 @@ hl.config({
         gaps_in  = 5,
         gaps_out = 10,
 
-        border_size = 2,
+        border_size = 0,
 
         col = {
             active_border   = "rgb(cba6f7)",
             inactive_border = "rgba(313244ff)",
         },
 
-        resize_on_border = true,
+        resize_on_border = false,
         allow_tearing    = false,
         layout           = "dwindle",
     },
@@ -120,7 +120,7 @@ hl.animation({ leaf = "workspacesIn",  enabled = true, speed = 1.21, bezier = "a
 hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "zoomFactor",    enabled = true, speed = 7,    bezier = "quick" })
 
-local suppressMaximizeRule = hl.window_rule({
+suppressMaximizeRule = hl.window_rule({
     name  = "suppress-maximize-events",
     match = { class = ".*" },
 
@@ -141,7 +141,7 @@ hl.window_rule({
     no_focus = true,
 })
 
-# Misc
+--Misc
 hl.config({
     misc = {
         force_default_wallpaper = 0,
@@ -171,53 +171,56 @@ hl.gesture({
 })
 
 --Binds
-local mainMod   = "SUPER"
-local secondMod = "SUPER + SHIFT"
-local thirdMod = "SUPER + CTRL"
 
 for i = 1, 10 do
-    local key = i % 10
-    hl.bind(mainMod   .. " + " .. key, hl.dsp.focus({ workspace = i }))
-    hl.bind(secondMod .. " + " .. key, hl.dsp.window.move({ workspace = i }))
+    key = i % 10
+    hl.bind("SUPER + " .. key,         hl.dsp.focus({ workspace = i }))
+    hl.bind("SUPER + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
 
-hl.bind(mainMod .. " + T",      hl.dsp.exec_cmd("kitty"))
-hl.bind(mainMod .. " + B",      hl.dsp.exec_cmd("qutebrowser"))
-hl.bind(mainMod .. " + N",      hl.dsp.exec_cmd("~/.config/scripts/wifi-manager"))
-hl.bind(mainMod .. " + W",      hl.dsp.exec_cmd("~/.config/scripts/wallpaper-switcher"))
-hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("~/.config/scripts/power-manager"))
-hl.bind(mainMod .. " + N",      hl.dsp.exec_cmd("~/.config/scripts/wifi-manager"))
-hl.bind(mainMod .. " + W",      hl.dsp.exec_cmd("~/.config/scripts/wallpaper-switcher"))
-hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("~/.config/scripts/power-manager"))
-hl.bind(secondMod .. " + T",    hl.dsp.exec_cmd("~/.config/scripts/theme-switcher"))
-hl.bind(mainMod .. " + S",      hl.dsp.exec_cmd("bash -c 'grim ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Fullscreen saved\" -i camera-photo'"))
-hl.bind(thirdMod .. " + S",     hl.dsp.exec_cmd("bash -c 'grim -g \"$(slurp)\" ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Area saved\" -i camera-photo'"))
-hl.bind(secondMod .. " + S",    hl.dsp.exec_cmd("bash -c 'grim -g \"$(hyprctl activewindow -j | jq -r \".at[0],\\\"\\\",.at[1],\\\" \\\",(.size[0]),\\\"x\\\",.size[1]\" | tr -d \\\"\\n\\\")\" ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Window saved\" -i camera-photo'"))
+hl.bind("SUPER + T",         hl.dsp.exec_cmd("alacritty"))
+hl.bind("SUPER + B",         hl.dsp.exec_cmd("qutebrowser"))
+hl.bind("SUPER + SHIFT + B", hl.dsp.exec_cmd("~/.config/scripts/bluetooth"))
+hl.bind("SUPER + C",         hl.dsp.exec_cmd("~/.config/scripts/clipboard"))
+hl.bind("SUPER + E",         hl.dsp.exec_cmd("~/.config/scripts/emoji"))
+hl.bind("SUPER + F",         hl.dsp.exec_cmd("~/.config/scripts/filebrowser"))
+hl.bind("SUPER + N",         hl.dsp.exec_cmd("~/.config/scripts/launcher"))
+hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("~/.config/scripts/launchpad"))
+hl.bind("SUPER + CTRL + W",  hl.dsp.exec_cmd("~/.config/scripts/new-wifi"))
+hl.bind("SUPER + P",         hl.dsp.exec_cmd("~/.config/scripts/powermenu"))
+hl.bind("SUPER + R",         hl.dsp.exec_cmd("~/.config/scripts/run"))
+hl.bind("SUPER + Escape",    hl.dsp.exec_cmd("~/.config/scripts/snippet"))
+hl.bind("SUPER + SHIFT + W", hl.dsp.exec_cmd("~/.config/scripts/wallpaper-switcher"))
+hl.bind("SUPER + W",         hl.dsp.exec_cmd("~/.config/scripts/wifi"))
+hl.bind("SUPER + D",         hl.dsp.exec_cmd("~/.config/scripts/window"))
+hl.bind("SUPER + S",         hl.dsp.exec_cmd("bash -c 'grim ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Fullscreen saved\" -i camera-photo'"))
+hl.bind("SUPER + CTRL + S",  hl.dsp.exec_cmd("bash -c 'grim -g \"$(slurp)\" ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Area saved\" -i camera-photo'"))
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("bash -c 'grim -g \"$(hyprctl activewindow -j | jq -r \".at[0],\\\"\\\",.at[1],\\\" \\\",(.size[0]),\\\"x\\\",.size[1]\" | tr -d \\\"\\n\\\")\" ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Window saved\" -i camera-photo'"))
 
-hl.bind(secondMod .. " + Q", hl.dsp.window.close())
-hl.bind(secondMod .. " + P", hl.dsp.window.pseudo())
+hl.bind("SUPER + SHIFT + Q", hl.dsp.window.close())
+hl.bind("SUPER + SHIFT + P", hl.dsp.window.pseudo())
 
-hl.bind(secondMod .. " + T", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(secondMod .. " + F", hl.dsp.window.fullscreen({ mode = "maximized" }))
+hl.bind("SUPER + SHIFT + T", hl.dsp.window.float({ action = "toggle" }))
+hl.bind("SUPER + SHIFT + F", hl.dsp.window.fullscreen({ mode = "maximized" }))
 
-hl.bind(mainMod .. " + H", hl.dsp.focus({ direction = "left" }))
-hl.bind(mainMod .. " + L", hl.dsp.focus({ direction = "right" }))
-hl.bind(mainMod .. " + K", hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + J", hl.dsp.focus({ direction = "down" }))
+hl.bind("SUPER + H", hl.dsp.focus({ direction = "left" }))
+hl.bind("SUPER + L", hl.dsp.focus({ direction = "right" }))
+hl.bind("SUPER + K", hl.dsp.focus({ direction = "up" }))
+hl.bind("SUPER + J", hl.dsp.focus({ direction = "down" }))
 
-hl.bind(secondMod .. " + H", hl.dsp.window.move({ direction = "left" }))
-hl.bind(secondMod .. " + L", hl.dsp.window.move({ direction = "right" }))
-hl.bind(secondMod .. " + K", hl.dsp.window.move({ direction = "up" }))
-hl.bind(secondMod .. " + J", hl.dsp.window.move({ direction = "down" }))
+hl.bind("SUPER + SHIFT + H", hl.dsp.window.move({ direction = "left" }))
+hl.bind("SUPER + SHIFT + L", hl.dsp.window.move({ direction = "right" }))
+hl.bind("SUPER + SHIFT + K", hl.dsp.window.move({ direction = "up" }))
+hl.bind("SUPER + SHIFT + J", hl.dsp.window.move({ direction = "down" }))
 
-hl.bind(mainMod   .. " + M", hl.dsp.workspace.toggle_special("magic"))
-hl.bind(secondMod .. " + M", hl.dsp.window.move({ workspace = "special:magic" }))
+hl.bind("SUPER + M",         hl.dsp.workspace.toggle_special("magic"))
+hl.bind("SUPER + SHIFT + M", hl.dsp.window.move({ workspace = "special:magic" }))
 
-hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
+hl.bind("SUPER + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
+hl.bind("SUPER + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 
-hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
-hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+hl.bind("SUPER + mouse:272", hl.dsp.window.drag(),   { mouse = true })
+hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
 hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
