@@ -1,4 +1,4 @@
-# Monitors
+--Monitors
 hl.monitor({
     output   = "",
     mode     = "preferred",
@@ -6,7 +6,7 @@ hl.monitor({
     scale    = "0.75",
 })
 
-# Autostart
+--Autostart
 hl.on("hyprland.start", function()
     hl.exec_cmd("mako")
     hl.exec_cmd("waybar")
@@ -17,7 +17,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
 end)
 
-# Environment
+--Environment
 hl.env("XCURSOR_SIZE", "24")
 hl.env("GDK_BACKEND",    "wayland,x11,*")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
@@ -32,7 +32,7 @@ hl.env("QT_QPA_PLATFORMTHEME",           "qt6ct")
 hl.env("LIBVA_DRIVER_NAME",       "nvidia")
 hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
 
-# LookNfeel
+--LookNfeel
 hl.config({
     general = {
         gaps_in  = 5,
@@ -149,7 +149,7 @@ hl.config({
     },
 })
 
-# Input
+--Input
 hl.config({
     input = {
         kb_layout  = "us",
@@ -170,7 +170,7 @@ hl.gesture({
     action = "workspace"
 })
 
-# Binds
+--Binds
 local mainMod   = "SUPER"
 local secondMod = "SUPER + SHIFT"
 local thirdMod = "SUPER + CTRL"
