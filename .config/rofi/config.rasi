@@ -14,7 +14,7 @@ configuration {
 
 /*****----- Fonts -----*****/
 * {
-    font: "JetBrainsMono Nerd Font Mono 10";
+    font: "FiraCode Nerd Font Mono 10";
 }
 
 /*****----- Colors (Mocha) -----*****/
