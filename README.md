@@ -134,7 +134,3 @@ user = "greeter"
 ```bash
 reboot
 ```
-
----
-
-## 6. Notes
