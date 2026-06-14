@@ -1,11 +1,10 @@
 * {
-    /* Base palette */
-    background:                  #1e1e2eff;  /* Base */
-    background-alt:              #181825ff;  /* Mantle */
-    foreground:                  #cdd6f4ff;  /* Text */
-    selected:                    #cba6f7ff;  /* Mauve */
-    urgent:                      #f38ba8ff;  /* Red */
-    active:                      #89b4faff;  /* Blue */
+    background:                  #1e1e2eff;
+    background-alt:              #181825ff;
+    foreground:                  #cdd6f4ff;
+    selected:                    #cba6f7ff;
+    urgent:                      #f38ba8ff;
+    active:                      #89b4faff;
 
     /* Font */
     font: "FiraCode Nerd Font 15";
