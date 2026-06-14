@@ -3,7 +3,7 @@ hl.monitor({
     output   = "",
     mode     = "preferred",
     position = "auto",
-    scale    = "1.20",
+    scale    = "1.0",
 })
 
 --Autostart
@@ -39,7 +39,6 @@ hl.config({
     general = {
         gaps_in  = 5,
         gaps_out = 10,
-
         border_size = 0,
 
         col = {
@@ -53,11 +52,11 @@ hl.config({
     },
 
     decoration = {
-        rounding       = 5,
+        rounding       = 10,
         rounding_power = 5,
 
-        active_opacity   = 0.7,
-        inactive_opacity = 0.7,
+        active_opacity   = 1.0,
+        inactive_opacity = 0.9,
 
         shadow = {
             enabled      = false,
@@ -182,19 +181,19 @@ end
 
 hl.bind("SUPER + T",         hl.dsp.exec_cmd("alacritty"))
 hl.bind("SUPER + B",         hl.dsp.exec_cmd("qutebrowser"))
-hl.bind("SUPER + SHIFT + B", hl.dsp.exec_cmd("~/.config/scripts/bluetooth"))
-hl.bind("SUPER + C",         hl.dsp.exec_cmd("~/.config/scripts/clipboard"))
-hl.bind("SUPER + E",         hl.dsp.exec_cmd("~/.config/scripts/emoji"))
-hl.bind("SUPER + F",         hl.dsp.exec_cmd("~/.config/scripts/filebrowser"))
-hl.bind("SUPER + N",         hl.dsp.exec_cmd("~/.config/scripts/launcher"))
-hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("~/.config/scripts/launchpad"))
-hl.bind("SUPER + CTRL + W",  hl.dsp.exec_cmd("~/.config/scripts/new-wifi"))
-hl.bind("SUPER + P",         hl.dsp.exec_cmd("~/.config/scripts/powermenu"))
-hl.bind("SUPER + R",         hl.dsp.exec_cmd("~/.config/scripts/run"))
-hl.bind("SUPER + Escape",    hl.dsp.exec_cmd("~/.config/scripts/snippet"))
-hl.bind("SUPER + SHIFT + W", hl.dsp.exec_cmd("~/.config/scripts/wallpaper-switcher"))
-hl.bind("SUPER + W",         hl.dsp.exec_cmd("~/.config/scripts/wifi"))
-hl.bind("SUPER + D",         hl.dsp.exec_cmd("~/.config/scripts/window"))
+hl.bind("SUPER + SHIFT + B", hl.dsp.exec_cmd("~/.config/rofi/scripts/bluetooth"))
+hl.bind("SUPER + C",         hl.dsp.exec_cmd("~/.config/rofi/scripts/clipboard"))
+hl.bind("SUPER + E",         hl.dsp.exec_cmd("~/.config/rofi/scripts/emoji"))
+hl.bind("SUPER + F",         hl.dsp.exec_cmd("~/.config/rofi/scripts/filebrowser"))
+hl.bind("SUPER + N",         hl.dsp.exec_cmd("~/.config/rofi/scripts/launcher"))
+hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("~/.config/rofi/scripts/launchpad"))
+hl.bind("SUPER + CTRL + W",  hl.dsp.exec_cmd("~/.config/rofi/scripts/new-wifi"))
+hl.bind("SUPER + P",         hl.dsp.exec_cmd("~/.config/rofi/scripts/powermenu"))
+hl.bind("SUPER + R",         hl.dsp.exec_cmd("~/.config/rofi/scripts/run"))
+hl.bind("SUPER + Escape",    hl.dsp.exec_cmd("~/.config/rofi/scripts/snippet"))
+hl.bind("SUPER + SHIFT + W", hl.dsp.exec_cmd("~/.config/rofi/scripts/wallpaper-switcher"))
+hl.bind("SUPER + W",         hl.dsp.exec_cmd("~/.config/rofi/scripts/wifi"))
+hl.bind("SUPER + D",         hl.dsp.exec_cmd("~/.config/rofi/scripts/window"))
 hl.bind("SUPER + S",         hl.dsp.exec_cmd("bash -c 'grim ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Fullscreen saved\" -i camera-photo'"))
 hl.bind("SUPER + CTRL + S",  hl.dsp.exec_cmd("bash -c 'grim -g \"$(slurp)\" ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Area saved\" -i camera-photo'"))
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("bash -c 'grim -g \"$(hyprctl activewindow -j | jq -r \".at[0],\\\"\\\",.at[1],\\\" \\\",(.size[0]),\\\"x\\\",.size[1]\" | tr -d \\\"\\n\\\")\" ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Window saved\" -i camera-photo'"))
