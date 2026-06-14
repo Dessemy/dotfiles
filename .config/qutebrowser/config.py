@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------- #
 #  General Settings                                                            #
 # --------------------------------------------------------------------------- #
+config.load_autoconfig(False)
 
 # Use dark color scheme
 config.set("colors.webpage.preferred_color_scheme", "dark")
@@ -13,8 +14,8 @@ config.set("colors.webpage.preferred_color_scheme", "dark")
 c.url.searchengines = {"DEFAULT": "https://www.google.com/search?q={}"}
 
 # Default page (optional — uncomment and change to your liking)
-# c.url.start_pages = ["https://www.google.com"]
-# c.url.default_page = "https://www.google.com"
+c.url.start_pages = ["https://www.google.com"]
+c.url.default_page = "https://www.google.com"
 
 # --------------------------------------------------------------------------- #
 #  Fonts                                                                       #
