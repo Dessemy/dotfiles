@@ -22,4 +22,4 @@ style = "Bold Italic"
 
 [window]
 decorations = "full"
-opacity = 0.8
+opacity = 1.0
