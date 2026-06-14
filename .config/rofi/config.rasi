@@ -17,7 +17,7 @@ configuration {
     font: "FiraCode Nerd Font Mono 10";
 }
 
-/*****----- Colors (Mocha) -----*****/
+/*****----- Colors -----*****/
 * {
     background:     #181825FF;
     background-alt: #1E1E2EFF;
