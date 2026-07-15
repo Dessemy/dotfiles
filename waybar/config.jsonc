@@ -1,0 +1,122 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 36,
+  "spacing": 0,
+  "margin-top": 13,
+  "margin-bottom": 0,
+  "margin-left": 13,
+  "margin-right": 13,
+  "modules-left": [
+    "hyprland/workspaces"
+  ],
+  "modules-center": [
+    "custom/cputemp",
+    "memory",
+    "cpu"
+  ],
+  "modules-right": [
+    "battery",
+    "backlight",
+    "pulseaudio",
+    "clock",
+    "network",
+  ],
+  "hyprland/workspaces": {
+    "disable-scroll": false,
+    "all-outputs": true,
+    "format": "{icon}",
+    "format-focused": "{icon}",
+    "format-icons": {
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6": "6",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "focused": "<span foreground='#b4befe'>󰣚</span>",
+      "urgent": "!"
+    },
+    "sort-by": "number",
+    "on-scroll-up": "hyprctl dispatch workspace e-1",
+    "on-scroll-down": "hyprctl dispatch workspace e+1"
+  },
+  "custom/cputemp": {
+    "exec": "$HOME/.config/scripts/cputemp",
+    "interval": 5,
+    "format": "<span foreground='#b4befe'></span>\u2009<span foreground='#cdd6f4'>{}°C</span>",
+    "tooltip": false
+  },
+  "memory": {
+    "interval": 2,
+    "format": " <span foreground='#cdd6f4'>{used}G</span>",
+    "tooltip": true,
+    "tooltip-format": "{used}GB / {total}GB"
+  },
+  "cpu": {
+    "interval": 2,
+    "format": " <span foreground='#cdd6f4'>{usage}%</span>",
+    "tooltip": true,
+    "tooltip-format": "Load: {load_avg1}\nUsage: {usage}%"
+  },
+  "pulseaudio": {
+    "format": "{icon} <span foreground='#cdd6f4'>{volume}%</span>",
+    "format-muted": "󰖁",
+    "on-click": "foot -e wiremix",
+    "scroll-step": 5,
+    "max-volume": 100,
+    "format-icons": {
+      "headphones": "",
+      "default": [
+        "",
+        "",
+        "\u2009"
+      ]
+    }
+  },
+  "clock": {
+    "tooltip-format": "<big>{:L%A, %d %B %Y}</big>\n<tt><small>{calendar}</small></tt>",
+    "format": "<span foreground='#cdd6f4'>{:L%d %B (%m), %A %H:%M}</span>",
+    "format-alt": "<span foreground='#cdd6f4'>{:L%a, %d %b %Y}</span>"
+  },
+  // Relevant for laptops
+  "battery": {
+    "bat": "BAT0",
+    "adapter": "ACAD",
+    "full-at": 98,
+    "low-threshold": 10,
+    "interval": 5,
+    "format": "{icon} <span foreground='#cdd6f4'>{capacity}%</span>",
+    "format-charging": " <span foreground='#cdd6f4'>{capacity}%</span>",
+    "format-icons": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "tooltip": false
+  },
+  // For laptops too
+  "backlight": {
+    "device": "amdgpu_bl2",
+    "format": "{icon} <span foreground='#cdd6f4'>{percent}%</span>",
+    "format-icons": [
+      "",
+      ""
+    ],
+    "on-scroll-up": "brightnessctl s +5%",
+    "on-scroll-down": "brightnessctl s 5%-",
+    "tooltip": false
+  },
+  "network": {
+    "interface": "wlp13s0",
+    "format-wifi": " ",
+    "format-disconnected": "<span foreground='#f38ba8'>󰖪</span>",
+    "tooltip": false,
+    "on-click": "foot -e impala"
+  }
+}

@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+LOCKFILE="/tmp/wallpaper-switcher.lock"
+exec 200>"$LOCKFILE"
+flock -n 200 || exit 0
+
+WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
+STATE_FILE="$HOME/.cache/wallpaper-index"
+MONITOR="eDP-1"
+
+mapfile -t WALLPAPERS < <(find "$WALLPAPER_DIR" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | sort)
+
+TOTAL=${#WALLPAPERS[@]}
+
+if [ "$TOTAL" -eq 0 ]; then
+    notify-send "Wallpaper" "No images found in $WALLPAPER_DIR"
+    exit 1
+fi
+
+if [ -f "$STATE_FILE" ]; then
+    CURRENT=$(cat "$STATE_FILE")
+else
+    CURRENT=0
+fi
+
+DIRECTION="$1"
+
+if [ "$DIRECTION" = "next" ]; then
+    CURRENT=$(( (CURRENT + 1) % TOTAL ))
+elif [ "$DIRECTION" = "prev" ]; then
+    CURRENT=$(( (CURRENT - 1 + TOTAL) % TOTAL ))
+else
+    echo "Usage: $0 [next|prev]"
+    exit 1
+fi
+
+NEW_WALLPAPER="${WALLPAPERS[$CURRENT]}"
+OLD_WALLPAPER=$(hyprctl hyprpaper listactive)
+
+hyprctl hyprpaper preload "$NEW_WALLPAPER"
+hyprctl hyprpaper wallpaper "$MONITOR,$NEW_WALLPAPER"
+
+echo "$CURRENT" > "$STATE_FILE"
+
+sleep 0.3
+if [ -n "$OLD_WALLPAPER" ] && [ "$OLD_WALLPAPER" != "$NEW_WALLPAPER" ]; then
+    hyprctl hyprpaper unload "$OLD_WALLPAPER"
+fi
+
+notify-send "Wallpaper" "$(basename "$NEW_WALLPAPER")"
