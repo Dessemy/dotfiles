@@ -39,7 +39,7 @@ yay -S --needed --noconfirm \
     hyprland yazi grim btop slurp foot neovim openssh wget \
     hyprpolkitagent qt5-wayland qt6-wayland smartmontools \
     xdg-desktop-portal-hyprland fuzzel waybar mako fastfetch zsh starship zoxide \
-    brightnessctl herdr-bin hypridle hyprlock hyprsunset hyprpicker fzf eza bat mpv \
+    brightnessctl herdr-bin hyprlock hyprsunset hyprpicker fzf eza bat mpv \
     libnotify ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
     jq wl-clipboard wf-recorder mpd playerctl hyprpaper vesktop-bin zip unzip steam \
     qutebrowser seatd ripgrep reflector nwg-look cliphist imagemagick fd ffmpeg \
