@@ -41,9 +41,9 @@ yay -S --needed --noconfirm \
     xdg-desktop-portal-hyprland fuzzel waybar mako fastfetch zsh starship zoxide \
     brightnessctl herdr-bin hypridle hyprlock hyprsunset hyprpicker fzf eza bat mpv \
     libnotify ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
-    jq wl-clipboard wf-recorder mpd playerctl hyprpaper zip unzip steam \
+    jq wl-clipboard wf-recorder mpd playerctl hyprpaper vesktop-bin zip unzip steam \
     qutebrowser seatd ripgrep reflector nwg-look cliphist imagemagick fd ffmpeg \
-    7zip ly switcheroo-control wiremix nodejs npm bluetui impala
+    7zip ly switcheroo-control wiremix nodejs npm ttyper bluetui impala
 
 log "Removing pre-existing nvidia-open (conflicts with nvidia-open-dkms)"
 if pacman -Qq nvidia-open &>/dev/null; then
@@ -56,9 +56,31 @@ sudo pacman -S --needed --noconfirm \
     vulkan-icd-loader lib32-vulkan-icd-loader \
     nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
     
+log "Removing splash logo from linux-zen UKI preset"
+PRESET_FILE="/etc/mkinitcpio.d/linux-zen.preset"
+if [[ -f "$PRESET_FILE" ]] && grep -q -- "--splash" "$PRESET_FILE"; then
+    sudo sed -i 's|default_options="--splash [^"]*"|default_options=""|' "$PRESET_FILE"
+else
+    log "No splash option found in $PRESET_FILE, skipping"
+fi
+
 log "Regenerating initramfs for linux-zen"
 sudo mkinitcpio -P
 
+log "Disabling systemd-boot menu (timeout 0)"
+LOADER_CONF="/boot/loader/loader.conf"
+if [[ -f "$LOADER_CONF" ]]; then
+    if grep -q "^timeout" "$LOADER_CONF"; then
+        sudo sed -i 's/^timeout.*/timeout 0/' "$LOADER_CONF"
+    else
+        echo "timeout 0" | sudo tee -a "$LOADER_CONF" > /dev/null
+    fi
+    sudo bootctl set-timeout 0 2>/dev/null || true
+else
+    warn "$LOADER_CONF not found, skipping systemd-boot timeout config"
+fi
+
+log "Enabling zsh shell"
 sudo chsh -s /usr/bin/zsh "$USER"
 
 log "Configuring /etc/zsh/zshenv (XDG_CONFIG_HOME / ZDOTDIR)"
@@ -95,15 +117,17 @@ for dir in "${CONFIG_DIRS[@]}"; do
     fi
 done
 
-log "Making scripts executable"
-chmod +x "$HOME/.config/scripts/cputemp" 2>/dev/null || warn "cputemp not found in ~/.config/scripts, skipping chmod"
-chmod +x "$HOME/.config/scripts/wallswitcher" 2>/dev/null || warn "wallswitcher not found in ~/.config/scripts, skipping chmod"
-chmod +x "$HOME/.config/scripts/walls" 2>/dev/null || warn "walls not found in ~/.config/scripts, skipping chmod"
+log "Making all scripts in ~/.config/scripts executable"
+if [[ -d "$HOME/.config/scripts" ]]; then
+    chmod +x "$HOME/.config/scripts"/*
+else
+    warn "~/.config/scripts not found, skipping chmod"
+fi
 
-if [[ -d "$SCRIPT_DIR/scripts" ]]; then
-    log "Adding $SCRIPT_DIR/scripts to PATH via /etc/zsh/zshenv"
-    if ! grep -q "dotfiles/scripts" "$ZSHENV" 2>/dev/null; then
-        echo "export PATH=\"$SCRIPT_DIR/scripts:\$PATH\"" | sudo tee -a "$ZSHENV" > /dev/null
+if [[ -d "$HOME/.config/scripts" ]]; then
+    log "Adding ~/.config/scripts to PATH via /etc/zsh/zshenv"
+    if ! grep -q ".config/scripts" "$ZSHENV" 2>/dev/null; then
+        echo 'export PATH="$HOME/.config/scripts:$PATH"' | sudo tee -a "$ZSHENV" > /dev/null
     fi
 fi
 
