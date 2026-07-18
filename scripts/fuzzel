@@ -22,7 +22,7 @@ confirm() {
 }
 
 is_math_expression() {
-    [[ "$1" =~ ^[0-9+\-*/().^%[:space:]]+$ ]]
+    [[ "$1" =~ ^[0-9+*/().^%[:space:]-]+$ ]]
 }
 
 if is_math_expression "$action"; then
@@ -44,7 +44,7 @@ except Exception as e:
     fi
 
     echo -n "$result" | wl-copy 2>/dev/null || true
-    notify-send "🧮 $action" "= $result (copied to clipboard)"
+    notify-send "$action" "= $result (copied to clipboard)"
     exit 0
 fi
 
