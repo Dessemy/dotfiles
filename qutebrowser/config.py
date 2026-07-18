@@ -35,7 +35,7 @@ quickmarksHtmlFilePath = os.path.join(os.path.dirname(__file__), "quickmarks.htm
 
 if os.path.isfile(quickmarksFile):
     quickmarksHtmlFileText = (
-        '<!DOCTYPE html><html><head><title>My Local Dashboard Awesome Homepage</title>'
+        '<!DOCTYPE html><html><head><title>Homepage</title>'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
         '<style>'
         f'body {{background-color: {base00}}}'
@@ -69,6 +69,7 @@ if os.path.isfile(quickmarksFile):
 config.set("content.blocking.method", "both")
 
 config.set("scrolling.smooth", True)
+c.scrolling.bar = "never"
 config.set(
     "qt.args",
     [
@@ -100,6 +101,8 @@ config.set("content.javascript.enabled", True, "devtools://*")
 config.set("content.javascript.enabled", True, "chrome://*/*")
 config.set("content.javascript.enabled", True, "qute://*/*")
 
+c.statusbar.widgets = ["url", "progress"]
+
 c.tabs.favicons.scale = 1.0
 c.tabs.last_close = "close"
 c.tabs.position = "top"
@@ -114,7 +117,7 @@ c.url.default_page = str(config.configdir) + "/home.html"
 c.url.start_pages = str(config.configdir) + "/home.html"
 
 c.url.searchengines = {
-    "DEFAULT": "https://search.brave.com/search?q={}&source=web",
+    "DEFAULT": "https://www.google.com/search?q={}",
 }
 
 config.set("completion.open_categories", ["searchengines", "quickmarks", "bookmarks"])
@@ -175,6 +178,7 @@ config.unbind("<Ctrl-X>")
 config.unbind("<Ctrl-A>")
 
 config.bind(",m", "hint links spawn mpv {hint-url}")
+config.bind(",d", "hint links spawn fdm {hint-url}")
 
 c.colors.completion.fg = base05
 c.colors.completion.odd.bg = base01
@@ -205,7 +209,12 @@ c.colors.downloads.stop.bg = base0C
 c.colors.downloads.error.fg = base08
 c.colors.hints.fg = base00
 c.colors.hints.bg = base0A
-c.colors.hints.match.fg = base05
+c.colors.hints.match.fg = base08
+
+c.fonts.hints = "10pt " + font
+c.hints.padding = {"top": 1, "bottom": 1, "left": 3, "right": 3}
+c.hints.border = "1px solid " + base01
+c.hints.radius = 3
 c.colors.keyhint.fg = base05
 c.colors.keyhint.suffix.fg = base05
 c.colors.keyhint.bg = base00
