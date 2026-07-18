@@ -162,7 +162,7 @@ hl.bind("SUPER + B",                hl.dsp.exec_cmd("foot -e bluetui"))
 hl.bind("SUPER + SHIFT + V",        hl.dsp.exec_cmd("foot -e wiremix"))
 hl.bind("SUPER + P",                hl.dsp.exec_cmd("hyprpicker"))
 hl.bind("SUPER + F",                hl.dsp.exec_cmd("~/.config/scripts/fuzzel"))
-hl.bind("SUPER + R",                hl.dsp.exec_cmd("~/.config/scripts/wybr"))m
+hl.bind("SUPER + R",                hl.dsp.exec_cmd("~/.config/scripts/wybr"))
 hl.bind("SUPER + SHIFT + W",        hl.dsp.exec_cmd("~/.config/scripts/wallswitcher next"))
 hl.bind("SUPER + SHIFT + CTRL + W", hl.dsp.exec_cmd("~/.config/scripts/wallswitcher prev"))
 hl.bind("SUPER + S",                hl.dsp.exec_cmd("bash -c 'grim ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send \"Screenshot\" \"Fullscreen saved\" -i camera-photo'"))
