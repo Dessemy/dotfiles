@@ -9,7 +9,7 @@ entries="󰀻  Apps
 󰚰  Update System
 󰐥  System"
 
-selected=$(echo -e "$entries" | fuzzel --dmenu --prompt "Go > " --width 32)
+selected=$(echo -e "$entries" | fuzzel --dmenu --prompt "Go > " --width 32 || true)
 [ -z "$selected" ] && exit 0
 
 action=$(echo "$selected" | sed -E 's/^[^ ]+  //')
@@ -17,7 +17,7 @@ action=$(echo "$selected" | sed -E 's/^[^ ]+  //')
 confirm() {
     local msg="$1"
     local ans
-    ans=$(printf "Yes\nNo" | fuzzel --dmenu --prompt "$msg ")
+    ans=$(printf "Yes\nNo" | fuzzel --dmenu --prompt "$msg " || true)
     [ "$ans" = "Yes" ]
 }
 
@@ -60,11 +60,11 @@ case "$action" in
 15m
 30m
 Custom..."
-        choice=$(echo "$presets" | fuzzel --dmenu --prompt "Timer > " --width 25)
+        choice=$(echo "$presets" | fuzzel --dmenu --prompt "Timer > " --width 25 || true)
         [ -z "$choice" ] && exit 0
 
         if [ "$choice" = "Custom..." ]; then
-            choice=$(echo "" | fuzzel --dmenu --prompt "Duration (e.g. 5m, 1h30m, 90s): ")
+            choice=$(echo "" | fuzzel --dmenu --prompt "Duration (e.g. 5m, 1h30m, 90s): " || true)
             [ -z "$choice" ] && exit 0
         fi
 
@@ -110,7 +110,7 @@ Custom..."
   Restart
 󰐥  Shutdown"
 
-        sys_choice=$(echo -e "$sys_entries" | fuzzel --dmenu --prompt "System > " --width 25)
+        sys_choice=$(echo -e "$sys_entries" | fuzzel --dmenu --prompt "System > " --width 25 || true)
         [ -z "$sys_choice" ] && exit 0
         sys_action=$(echo "$sys_choice" | sed -E 's/^[^ ]+  //')
 
@@ -129,7 +129,7 @@ Custom..."
                 confirm "Hibernate?" || exit 0
                 hyprlock & sleep 1; systemctl hibernate
                 ;;
-            Reboot)
+            Restart)
                 confirm "Restart?" || exit 0
                 systemctl reboot
                 ;;
