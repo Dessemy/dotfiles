@@ -64,6 +64,66 @@ else
     log "No splash option found in $PRESET_FILE, skipping"
 fi
 
+log "Setting up hibernation support (swapfile + resume)"
+SWAPFILE="/swapfile"
+
+if swapon --show=NAME --noheadings 2>/dev/null | grep -qx "$SWAPFILE"; then
+    log "Swapfile already active, skipping creation"
+elif [[ -f "$SWAPFILE" ]]; then
+    log "Swapfile already exists at $SWAPFILE, activating"
+    sudo swapon "$SWAPFILE" || true
+else
+    RAM_KIB=$(awk '/MemTotal/ {print $2}' /proc/meminfo)
+    RAM_GIB=$(( (RAM_KIB + 1048575) / 1048576 ))  # round up to nearest GiB
+    log "Creating ${RAM_GIB}GiB swapfile at $SWAPFILE (sized to match RAM)"
+    sudo fallocate -l "${RAM_GIB}G" "$SWAPFILE"
+    sudo chmod 600 "$SWAPFILE"
+    sudo mkswap "$SWAPFILE"
+    sudo swapon "$SWAPFILE"
+fi
+
+if ! grep -q "^$SWAPFILE " /etc/fstab 2>/dev/null; then
+    echo "$SWAPFILE none swap defaults 0 0" | sudo tee -a /etc/fstab > /dev/null
+fi
+
+log "Calculating swapfile resume_offset"
+SWAP_OFFSET=$(sudo filefrag -v "$SWAPFILE" | awk '$1=="0:" {print $4}' | tr -d '.')
+ROOT_DEV=$(findmnt -no SOURCE /)
+ROOT_UUID=$(sudo blkid -s UUID -o value "$ROOT_DEV")
+
+if [[ -z "$SWAP_OFFSET" || -z "$ROOT_UUID" ]]; then
+    warn "Could not determine swap offset or root UUID, skipping resume kernel params (hibernate will not work until this is fixed manually)"
+else
+    RESUME_PARAMS="resume=UUID=$ROOT_UUID resume_offset=$SWAP_OFFSET"
+
+    log "Adding 'resume' hook to /etc/mkinitcpio.conf"
+    if ! grep -qE '^HOOKS=.*\bresume\b' /etc/mkinitcpio.conf; then
+        sudo sed -i -E 's/^(HOOKS=\([^)]*\budev\b)/\1 resume/' /etc/mkinitcpio.conf
+    else
+        log "resume hook already present, skipping"
+    fi
+
+    CMDLINE_FILE="/etc/kernel/cmdline"
+    if [[ -f "$CMDLINE_FILE" ]]; then
+        log "Adding resume params to $CMDLINE_FILE (UKI cmdline)"
+        if ! grep -q "resume=" "$CMDLINE_FILE"; then
+            sudo sed -i "s|\$| $RESUME_PARAMS|" "$CMDLINE_FILE"
+        else
+            log "resume params already present in $CMDLINE_FILE, skipping"
+        fi
+    else
+        log "No $CMDLINE_FILE found, adding resume params to systemd-boot entries instead"
+        shopt -s nullglob
+        for entry in /boot/loader/entries/*.conf; do
+            if ! grep -q "resume=" "$entry"; then
+                sudo sed -i "/^options/ s|\$| $RESUME_PARAMS|" "$entry"
+                log "  updated $entry"
+            fi
+        done
+        shopt -u nullglob
+    fi
+fi
+
 log "Regenerating initramfs for linux-zen"
 sudo mkinitcpio -P
 
