@@ -36,14 +36,14 @@ fi
 
 log "Installing desktop and CLI packages via yay"
 yay -S --needed --noconfirm \
-    hyprland yazi grim btop slurp foot neovim openssh wget \
-    hyprpolkitagent qt5-wayland qt6-wayland smartmontools \
-    xdg-desktop-portal-hyprland fuzzel waybar mako fastfetch zsh starship zoxide \
-    brightnessctl herdr-bin hyprlock hyprsunset hyprpicker fzf eza bat mpv \
-    libnotify ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
-    jq wl-clipboard wf-recorder mpd playerctl hyprpaper vesktop-bin zip unzip steam \
-    qutebrowser seatd ripgrep reflector nwg-look cliphist imagemagick fd ffmpeg \
-    7zip ly switcheroo-control wiremix nodejs npm ttyper bluetui impala
+    ly seatd hyprland xdg-desktop-portal-hyprland qt5-wayland qt6-wayland smartmontools grim slurp nodejs npm openssh wget \
+    brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard wf-recorder cliphist \
+    foot herdr-bin neovim yazi bluetui impala wiremix btop ttyper mpv mpd 7zip zip unzip \
+    zsh starship zoxide jq fd fzf fastfetch eza bat ripgrep imagemagick ffmpeg \
+    ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
+    hyprlock hyprsunset hyprpicker hyprpaper hyprpolkitagent \
+    qutebrowser vesktop-bin steam lutris \
+    fuzzel waybar mako nwg-look
 
 log "Removing pre-existing nvidia-open (conflicts with nvidia-open-dkms)"
 if pacman -Qq nvidia-open &>/dev/null; then
