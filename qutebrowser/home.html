@@ -28,33 +28,19 @@
     .open:hover {
       background-color: #fab387;
     }
-    .quickmarks {
-      color: #f9e2af;
+    .youtube {
+      color: #f38ba8;
       font-weight: bold;
     }
-    .quickmarks:hover {
-      background-color: #f9e2af;
+    .youtube:hover {
+      background-color: #f38ba8;
     }
-    .history {
-      color: #a6e3a1;
+    .github {
+      color: #cdd6f4;
       font-weight: bold;
     }
-    .history:hover {
-      background-color: #a6e3a1;
-    }
-    .newtab {
-      color: #94e2d5;
-      font-weight: bold;
-    }
-    .newtab:hover {
-      background-color: #94e2d5;
-    }
-    .close {
-      color: #89b4fa;
-      font-weight: bold;
-    }
-    .close:hover {
-      background-color: #89b4fa;
+    .github:hover {
+      background-color: #cdd6f4;
     }
 
     div {
@@ -71,6 +57,17 @@
       display: inline-block;
       text-align: left;
     }
+    .links {
+      margin-top: 60px;
+    }
+    .links a {
+      margin: 0 15px;
+      font-size: 32px;
+    }
+    .links svg {
+      width: 32px;
+      height: 32px;
+    }
   </style>
 </head>
 
@@ -78,24 +75,30 @@
   <br><br><br>
   <div class="icon">
     <pre class="ascii">
- ██████╗ ██╗   ██╗████████╗███████╗
-██╔═══██╗██║   ██║╚══██╔══╝██╔════╝
-██║   ██║██║   ██║   ██║   █████╗
-██║▄▄ ██║██║   ██║   ██║   ██╔══╝
-╚██████╔╝╚██████╔╝   ██║   ███████╗
- ╚══▀▀═╝  ╚═════╝    ╚═╝   ╚══════╝
+ ██████╗ ██╗   ██╗████████╗███████╗██████╗ ██████╗  ██████╗ ██╗    ██╗███████╗███████╗██████╗
+██╔═══██╗██║   ██║╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔═══██╗██║    ██║██╔════╝██╔════╝██╔══██╗
+██║   ██║██║   ██║   ██║   █████╗  ██████╔╝██████╔╝██║   ██║██║ █╗ ██║███████╗█████╗  ██████╔╝
+██║▄▄ ██║██║   ██║   ██║   ██╔══╝  ██╔══██╗██╔══██╗██║   ██║██║███╗██║╚════██║██╔══╝  ██╔══██╗
+╚██████╔╝╚██████╔╝   ██║   ███████╗██████╔╝██║  ██║╚██████╔╝╚███╔███╔╝███████║███████╗██║  ██║
+ ╚══▀▀═╝  ╚═════╝    ╚═╝   ╚══════╝╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝ ╚══════╝╚══════╝╚═╝  ╚═╝
     </pre>
   </div>
-  <br><br><br>
-  <p style="color:#181825">Welcome to Qutebrowser</p>
-  <br>
-  <p><b>Default Profile</b></p>
-  <br>
+  <br><br>
   <div>
-    <a class="open" href="https://www.startpage.com"> [o] [Search] </a>
-    <a class="quickmarks" href="./quickmarks.html" target="_blank" rel="noopener noreferrer"> [b] [Quickmarks] </a>
-    <a class="newtab" href="./home.html" target="_blank" rel="noopener noreferrer"> [t] [New tab] </a>
-    <a class="close" href="#" onclick="window.close();return false;"> [x] [Close tab] </a>
+    <a class="open" href="https://www.startpage.com"> [o]  [Search] </a>
+  </div>
+  <br>
+  <div class="links">
+    <a class="youtube" href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:6px;">
+        <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.5V8.5l6.3 3.5-6.3 3.5Z"/>
+      </svg>YouTube
+    </a>
+    <a class="github" href="https://www.github.com" target="_blank" rel="noopener noreferrer">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:6px;">
+        <path d="M12 0.3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.8.1-.8 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.3-3.2-.1-.3-.6-1.6.1-3.3 0 0 1-.3 3.4 1.2a11.8 11.8 0 0 1 6.2 0c2.4-1.6 3.4-1.2 3.4-1.2.7 1.7.2 3 .1 3.3.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 0.3Z"/>
+      </svg>GitHub
+    </a>
   </div>
 </body>
 
