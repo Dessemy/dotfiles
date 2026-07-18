@@ -9,7 +9,7 @@
   "margin-right": 10,
   "modules-left": ["hyprland/workspaces"],
   "modules-center": ["clock"],
-  "modules-right": ["memory", "temperature", "cpu", "pulseaudio", "battery", "tray"],
+  "modules-right": ["memory", "temperature", "cpu", "pulseaudio", "battery"],
 
   "hyprland/workspaces": {
     "disable-scroll": false,
@@ -87,12 +87,5 @@
     "format-charging": " <span foreground='#cdd6f4'>{capacity}%</span>",
     "format-icons": [" ", " ", " ", " ", " "],
     "tooltip": true
-  },
-
-  "tray": {
-    "format": "{icon}",
-    "tooltip": true,
-    "icon-size": 12,
-    "spacing": 0
   }
 }
