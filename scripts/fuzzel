@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+TERMINAL="foot"
+
+entries="󰀻  Apps
+󱎫  Timer
+󰚰  Update System
+󰐥  System"
+
+selected=$(echo -e "$entries" | fuzzel --dmenu --prompt "Go > " --width 32)
+[ -z "$selected" ] && exit 0
+
+action=$(echo "$selected" | sed -E 's/^[^ ]+  //')
+
+confirm() {
+    local msg="$1"
+    local ans
+    ans=$(printf "Yes\nNo" | fuzzel --dmenu --prompt "$msg ")
+    [ "$ans" = "Yes" ]
+}
+
+is_math_expression() {
+    [[ "$1" =~ ^[0-9+\-*/().^%[:space:]]+$ ]]
+}
+
+if is_math_expression "$action"; then
+    if command -v qalc >/dev/null 2>&1; then
+        result=$(qalc -t "$action" 2>/dev/null)
+    else
+        result=$(python3 -c "
+import math
+try:
+    print(eval('$action', {'__builtins__': {}}, {}))
+except Exception as e:
+    print('Error:', e)
+")
+    fi
+
+    if [ -z "$result" ]; then
+        notify-send "Calculator" "Could not evaluate: $action"
+        exit 1
+    fi
+
+    echo -n "$result" | wl-copy 2>/dev/null || true
+    notify-send "🧮 $action" "= $result (copied to clipboard)"
+    exit 0
+fi
+
+case "$action" in
+    Apps)
+        fuzzel --prompt "Apps > " --terminal "$TERMINAL"
+        ;;
+
+    Timer)
+        presets="1m
+5m
+10m
+15m
+30m
+Custom..."
+        choice=$(echo "$presets" | fuzzel --dmenu --prompt "Timer > " --width 25)
+        [ -z "$choice" ] && exit 0
+
+        if [ "$choice" = "Custom..." ]; then
+            choice=$(echo "" | fuzzel --dmenu --prompt "Duration (e.g. 5m, 1h30m, 90s): ")
+            [ -z "$choice" ] && exit 0
+        fi
+
+        parse_duration() {
+            local input="$1"
+            if [[ "$input" =~ ^[0-9]+$ ]]; then
+                echo $(( input * 60 ))
+                return
+            fi
+            local h m s
+            h=$(grep -oP '\d+(?=h)' <<<"$input" || true)
+            m=$(grep -oP '\d+(?=m)' <<<"$input" || true)
+            s=$(grep -oP '\d+(?=s)' <<<"$input" || true)
+            echo $(( ${h:-0}*3600 + ${m:-0}*60 + ${s:-0} ))
+        }
+
+        seconds=$(parse_duration "$choice")
+        if [ -z "$seconds" ] || [ "$seconds" -le 0 ]; then
+            notify-send "Timer" "Invalid duration: $choice"
+            exit 1
+        fi
+
+        notify-send "Timer started" "Duration: $choice"
+        (
+            sleep "$seconds"
+            notify-send -u critical "󰀠 Timer finished!" "$choice has elapsed"
+            if command -v paplay >/dev/null 2>&1 && [ -f /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga ]; then
+                paplay /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga
+            fi
+        ) & disown
+        ;;
+
+    "Update System")
+        confirm "Update system?" || exit 0
+        "$TERMINAL" -e bash -c "yay -Syu; echo; read -p 'Press Enter to close...'"
+        ;;
+
+    System)
+        sys_entries="  Lock
+󰍃  Logout
+󰤄  Suspend
+󰒲  Hibernate
+  Restart
+󰐥  Shutdown"
+
+        sys_choice=$(echo -e "$sys_entries" | fuzzel --dmenu --prompt "System > " --width 25)
+        [ -z "$sys_choice" ] && exit 0
+        sys_action=$(echo "$sys_choice" | sed -E 's/^[^ ]+  //')
+
+        case "$sys_action" in
+            Lock)
+                hyprlock &
+                ;;
+            Logout)
+                confirm "Logout?" || exit 0
+                hyprctl dispatch exit
+                ;;
+            Suspend)
+                hyprlock & sleep 1; systemctl suspend
+                ;;
+            Hibernate)
+                confirm "Hibernate?" || exit 0
+                hyprlock & sleep 1; systemctl hibernate
+                ;;
+            Reboot)
+                confirm "Restart?" || exit 0
+                systemctl reboot
+                ;;
+            Shutdown)
+                confirm "Shutdown?" || exit 0
+                systemctl poweroff
+                ;;
+        esac
+        ;;
+
+    *)
+        exit 0
+        ;;
+esac
