@@ -39,3 +39,24 @@ default-timeout=0
 
 [mode=do-not-disturb]
 invisible=1
+
+[app-name="Battery100"]
+border-color=#89b4fa
+background-color=#1e1e2eee
+text-color=#cdd6f4
+
+[app-name="Battery80"]
+border-color=#a6e3a1
+background-color=#1e1e2eee
+text-color=#a6e3a1
+
+[app-name="Battery20"]
+border-color=#fab387
+background-color=#1e1e2eee
+text-color=#fab387
+
+[app-name="Battery10"]
+border-color=#f38ba8
+background-color=#1e1e2eee
+text-color=#f38ba8
+default-timeout=0
