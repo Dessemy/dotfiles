@@ -3,7 +3,7 @@ hl.monitor({
     output   = "eDP-1",
     mode     = "1920x1080@60",
     position = "0x0",
-    scale    = "1.2",
+    scale    = "1.0",
 })
 
 --Autostart
@@ -17,20 +17,22 @@ hl.on("hyprland.start", function()
 end)
 
 --Environment
-hl.env("XCURSOR_SIZE",  "20")
+hl.env("GDK_SCALE", "1")
+hl.env("XCURSOR_SIZE", "20")
 hl.env("HYPRCURSOR_SIZE", "20")
-hl.env("GDK_BACKEND",    "wayland,x11,*")
+hl.env("GDK_BACKEND", "wayland,x11,*")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 hl.env("SDL_VIDEODRIVER", "wayland")
 hl.env("CLUTTER_BACKEND", "wayland")
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
-hl.env("XDG_SESSION_TYPE",    "wayland")
+hl.env("XDG_SESSION_TYPE", "wayland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
-hl.env("QT_AUTO_SCREEN_SCALE_FACTOR",    "1.25")
+hl.env("QT_AUTO_SCREEN_SCALE_FACTOR", "1.25")
 hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
-hl.env("QT_QPA_PLATFORMTHEME",           "qt6ct")
-hl.env("LIBVA_DRIVER_NAME",       "nvidia")
-hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
+hl.env("LIBVA_DRIVER_NAME", "radeonsi")
+hl.env("WLR_DRM_DEVICES", "/dev/dri/card0")
+hl.env("WLR_NO_HARDWARE_CURSORS", "1")
 
 --LookNfeel
 hl.config({
@@ -113,6 +115,12 @@ hl.window_rule({
     },
 
     no_focus = true,
+})
+
+hl.config({
+  xwayland = {
+    force_zero_scaling = true,
+  },
 })
 
 --Misc
