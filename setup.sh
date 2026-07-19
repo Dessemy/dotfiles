@@ -202,7 +202,7 @@ Description=Battery percentage notification
 
 [Service]
 Type=oneshot
-ExecStart=%h/.config/scripts/battery-notify
+ExecStart=%h/.config/scripts/batnotify
 EOF
 
     cat > "$SYSTEMD_USER_DIR/battery-notify.timer" <<'EOF'
@@ -222,7 +222,7 @@ EOF
     systemctl --user enable --now battery-notify.timer
     log "  battery-notify.timer enabled"
 else
-    warn "~/.config/scripts/battery-notify.sh not found, skipping battery-notify timer setup"
+    warn "~/.config/scripts/batnotify not found, skipping battery-notify timer setup"
 fi
 
 log "Configuring iwd (WiFi) for automatic DHCP"
