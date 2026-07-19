@@ -38,7 +38,7 @@ log "Installing desktop and CLI packages via yay"
 yay -S --needed --noconfirm \
     ly seatd hyprland xdg-desktop-portal-hyprland qt5-wayland qt6-wayland smartmontools grim slurp nodejs npm openssh wget \
     brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cliphist \
-    foot herdr-bin neovim yazi bluetui impala wiremix btop cava ttyper mpv rmpc mpd 7zip zip unzip \
+    foot herdr-bin neovim yazi bluetui impala wiremix btop cava ttyper mpv rmpc mpc mpd 7zip zip unzip \
     zsh starship zoxide jq fd fzf fastfetch eza bat ripgrep imagemagick ffmpeg \
     ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
     hyprlock hyprsunset hyprpicker hyprpaper hyprpolkitagent \
@@ -74,7 +74,7 @@ elif [[ -f "$SWAPFILE" ]]; then
     sudo swapon "$SWAPFILE" || true
 else
     RAM_KIB=$(awk '/MemTotal/ {print $2}' /proc/meminfo)
-    RAM_GIB=$(( (RAM_KIB + 1048575) / 1048576 ))  # round up to nearest GiB
+    RAM_GIB=$(( (RAM_KIB + 1048575) / 1048576 ))
     log "Creating ${RAM_GIB}GiB swapfile at $SWAPFILE (sized to match RAM)"
     sudo fallocate -l "${RAM_GIB}G" "$SWAPFILE"
     sudo chmod 600 "$SWAPFILE"
@@ -189,6 +189,40 @@ if [[ -d "$HOME/.config/scripts" ]]; then
     if ! grep -q ".config/scripts" "$ZSHENV" 2>/dev/null; then
         echo 'export PATH="$HOME/.config/scripts:$PATH"' | sudo tee -a "$ZSHENV" > /dev/null
     fi
+fi
+
+log "Setting up battery-notify systemd user timer"
+SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
+mkdir -p "$SYSTEMD_USER_DIR"
+
+if [[ -f "$HOME/.config/scripts/battery-notify.sh" ]]; then
+    cat > "$SYSTEMD_USER_DIR/battery-notify.service" <<'EOF'
+[Unit]
+Description=Battery percentage notification
+
+[Service]
+Type=oneshot
+ExecStart=%h/.config/scripts/battery-notify
+EOF
+
+    cat > "$SYSTEMD_USER_DIR/battery-notify.timer" <<'EOF'
+[Unit]
+Description=Run battery percentage check every 60 seconds
+
+[Timer]
+OnBootSec=30sec
+OnUnitActiveSec=60sec
+AccuracySec=5sec
+
+[Install]
+WantedBy=timers.target
+EOF
+
+    systemctl --user daemon-reload
+    systemctl --user enable --now battery-notify.timer
+    log "  battery-notify.timer enabled"
+else
+    warn "~/.config/scripts/battery-notify.sh not found, skipping battery-notify timer setup"
 fi
 
 log "Configuring iwd (WiFi) for automatic DHCP"
