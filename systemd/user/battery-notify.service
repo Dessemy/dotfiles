@@ -1,6 +1,0 @@
-[Unit]
-Description=Battery percentage notification
-
-[Service]
-Type=oneshot
-ExecStart=%h/.config/scripts/batnotify
