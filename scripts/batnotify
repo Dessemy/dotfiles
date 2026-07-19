@@ -1,0 +1,46 @@
+#!/bin/bash
+
+BAT_PATH="/sys/class/power_supply/BAT0"
+
+STATE_FILE="/tmp/battery-notify-state"
+
+CAPACITY=$(cat "$BAT_PATH/capacity")
+STATUS=$(cat "$BAT_PATH/status")
+
+LAST_STATE=""
+[ -f "$STATE_FILE" ] && LAST_STATE=$(cat "$STATE_FILE")
+
+notify() {
+    local app_name="$1"
+    local title="$2"
+    local body="$3"
+    local urgency="${4:-normal}"
+    notify-send -a "$app_name" -u "$urgency" "$title" "$body"
+    echo "$app_name" > "$STATE_FILE"
+}
+
+if [ "$CAPACITY" -ge 100 ] || [ "$STATUS" = "Full" ]; then
+    if [ "$LAST_STATE" != "Battery100" ]; then
+        notify "Battery100" "Battery Full" "Battery is at 100%, you can unplug the charger."
+    fi
+
+elif [ "$CAPACITY" -le 10 ] && [ "$STATUS" = "Discharging" ]; then
+    if [ "$LAST_STATE" != "Battery10" ]; then
+        notify "Battery10" "Critical Battery (10%)" "Plug in the charger now!" critical
+    fi
+
+elif [ "$CAPACITY" -le 20 ] && [ "$STATUS" = "Discharging" ]; then
+    if [ "$LAST_STATE" != "Battery20" ]; then
+        notify "Battery20" "Low Battery (20%)" "Find a charger soon." critical
+    fi
+
+elif [ "$CAPACITY" -ge 80 ] && [ "$CAPACITY" -lt 100 ] && [ "$STATUS" = "Charging" ]; then
+    if [ "$LAST_STATE" != "Battery80" ]; then
+        notify "Battery80" "Battery at 80%" "Battery is well charged, unplugging is optional."
+    fi
+
+elif [ "$CAPACITY" -lt 80 ] && [ "$CAPACITY" -gt 20 ]; then
+    rm -f "$STATE_FILE"
+fi
+
+exit 0
