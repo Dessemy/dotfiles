@@ -276,6 +276,51 @@ sudo systemctl enable ly@tty1.service
 log "Enabling reflector timer"
 sudo systemctl enable --now reflector.timer || true
 
+log "Setting up MPD (Music Player Daemon)"
+MPD_CONFIG_DIR="$HOME/.config/mpd"
+mkdir -p "$MPD_CONFIG_DIR/playlists" "$HOME/Music"
+
+if [[ ! -f "$MPD_CONFIG_DIR/mpd.conf" ]]; then
+    cat > "$MPD_CONFIG_DIR/mpd.conf" <<EOF
+music_directory    "$HOME/Music"
+playlist_directory "$MPD_CONFIG_DIR/playlists"
+db_file            "$MPD_CONFIG_DIR/database"
+log_file           "$MPD_CONFIG_DIR/log"
+pid_file           "$MPD_CONFIG_DIR/pid"
+state_file         "$MPD_CONFIG_DIR/state"
+sticker_file       "$MPD_CONFIG_DIR/sticker.sql"
+
+bind_to_address    "127.0.0.1"
+port               "6600"
+EOF
+    log "  created $MPD_CONFIG_DIR/mpd.conf"
+else
+    log "mpd.conf already exists, skipping"
+fi
+
+log "Enabling mpd user service"
+systemctl --user enable --now mpd
+
+log "Generating default rmpc config and theme"
+RMPC_CONFIG_DIR="$HOME/.config/rmpc"
+mkdir -p "$RMPC_CONFIG_DIR"
+
+if [[ ! -f "$RMPC_CONFIG_DIR/config.ron" ]]; then
+    rmpc config > "$RMPC_CONFIG_DIR/config.ron"
+    log "  created $RMPC_CONFIG_DIR/config.ron"
+else
+    log "rmpc config.ron already exists, skipping"
+fi
+
+if [[ ! -f "$RMPC_CONFIG_DIR/theme.ron" ]]; then
+    rmpc theme > "$RMPC_CONFIG_DIR/theme.ron"
+    log "  created $RMPC_CONFIG_DIR/theme.ron"
+else
+    log "rmpc theme.ron already exists, skipping"
+fi
+
+log "Note: album art in rmpc works via foot's native Sixel support, no extra image backend needed."
+
 log "Setup complete. Rebooting in 3 seconds — press Ctrl+C now to cancel."
 sleep 3
 sudo reboot
