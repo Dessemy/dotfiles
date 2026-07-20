@@ -225,6 +225,19 @@ else
     warn "~/.config/scripts/batnotify not found, skipping battery-notify timer setup"
 fi
 
+log "Disabling rtw89 power save (fixes lag/disconnect on RTL8852BE/AE/CE wifi)"
+RTW89_CONF="/etc/modprobe.d/rtw89.conf"
+if lspci -k 2>/dev/null | grep -qi "rtw89"; then
+    if [[ ! -f "$RTW89_CONF" ]] || ! grep -q "disable_ps_mode=1" "$RTW89_CONF" 2>/dev/null; then
+        echo "options rtw89_core disable_ps_mode=1" | sudo tee "$RTW89_CONF" > /dev/null
+        log "  rtw89 power save disabled, will take effect after reboot"
+    else
+        log "rtw89 power save already disabled, skipping"
+    fi
+else
+    log "No rtw89 wifi device detected, skipping"
+fi
+
 log "Configuring iwd (WiFi) for automatic DHCP"
 IWD_CONF="/etc/iwd/main.conf"
 sudo mkdir -p /etc/iwd
@@ -232,6 +245,9 @@ if [[ ! -f "$IWD_CONF" ]]; then
     sudo tee "$IWD_CONF" > /dev/null <<'EOF'
 [General]
 EnableNetworkConfiguration=true
+
+[Scan]
+DisablePeriodicScan=true
 EOF
 elif ! grep -q "EnableNetworkConfiguration=true" "$IWD_CONF"; then
     if grep -q "^\[General\]" "$IWD_CONF"; then
@@ -241,6 +257,14 @@ elif ! grep -q "EnableNetworkConfiguration=true" "$IWD_CONF"; then
     fi
 else
     log "iwd already configured for DHCP, skipping"
+fi
+
+if ! grep -q "^\[Scan\]" "$IWD_CONF" 2>/dev/null; then
+    printf "\n[Scan]\nDisablePeriodicScan=true\n" | sudo tee -a "$IWD_CONF" > /dev/null
+elif ! grep -q "DisablePeriodicScan=true" "$IWD_CONF"; then
+    sudo sed -i '/^\[Scan\]/a DisablePeriodicScan=true' "$IWD_CONF"
+else
+    log "iwd periodic scan already disabled, skipping"
 fi
 
 log "Making sure NetworkManager is disabled (standalone iwd setup, install may not even have it)"
