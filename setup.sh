@@ -232,16 +232,6 @@ mkdir -p "$SCRIPTS_DIR"
 if [[ ! -f "$SCRIPTS_DIR/cpupower-switcher" ]]; then
     cat > "$SCRIPTS_DIR/cpupower-switcher" <<'SCRIPT_EOF'
 #!/usr/bin/env bash
-#
-# cpupower-switcher
-# Toggle / set mode performa CPU (performance, balanced, powersave)
-# menggunakan cpupower langsung, lengkap dengan notifikasi desktop.
-#
-# Usage:
-#   cpupower-switcher              -> cycle ke mode berikutnya
-#   cpupower-switcher performance  -> set langsung performance
-#   cpupower-switcher balanced     -> set langsung balanced (schedutil/ondemand)
-#   cpupower-switcher powersave    -> set langsung powersave
 
 set -euo pipefail
 
@@ -263,9 +253,9 @@ else
 fi
 
 declare -A LABELS=(
-    ["performance"]="🚀 Performance"
-    ["balanced"]="⚖️  Balanced (${BALANCED_GOVERNOR})"
-    ["powersave"]="🔋 Power Saver"
+    ["performance"]="Performance"
+    ["balanced"]="Balanced (${BALANCED_GOVERNOR})"
+    ["powersave"]="Power Saver"
 )
 
 set_mode() {
@@ -279,12 +269,9 @@ set_mode() {
     sudo cpupower frequency-set -g "$governor" &> /dev/null
 
     echo "$mode" > "$STATE_FILE"
-    # Tandai override manual, biar auto-switcher (udev, cpupower-auto.sh) tidak
-    # langsung menimpa pilihan manual ini dalam beberapa detik ke depan
     date +%s > /tmp/cpupower-manual-override
     notify-send -u normal "CPU Power Mode" "${LABELS[$mode]}" -t 1500
 
-    # Trigger Waybar custom module untuk refresh instan (lihat "signal" di config.jsonc)
     pkill -RTMIN+8 waybar 2>/dev/null || true
 }
 
@@ -322,11 +309,6 @@ fi
 if [[ ! -f "$SCRIPTS_DIR/waybar-power-mode" ]]; then
     cat > "$SCRIPTS_DIR/waybar-power-mode" <<'SCRIPT_EOF'
 #!/usr/bin/env bash
-#
-# waybar-power-mode
-# Menghasilkan output JSON untuk custom module Waybar, menampilkan
-# power mode aktif (performance/balanced/powersave) berdasarkan
-# STATE_FILE yang ditulis oleh cpupower-switcher / cpupower-auto.sh
 
 set -euo pipefail
 
@@ -373,21 +355,13 @@ log "Installing system-level cpupower-auto (AC/battery auto-switch) script"
 if [[ ! -f /usr/local/bin/cpupower-auto.sh ]]; then
     sudo tee /usr/local/bin/cpupower-auto.sh > /dev/null <<'SCRIPT_EOF'
 #!/usr/bin/env bash
-#
-# cpupower-auto.sh
-# Auto-switch governor CPU + USB autosuspend + PCIe ASPM berdasarkan status AC/baterai.
-# Dipanggil otomatis oleh udev rule saat charger di-plug/unplug.
-# File ini dijalankan sebagai ROOT oleh udev, jadi tidak perlu sudo di dalamnya.
 
 set -euo pipefail
 
-# Kalau ada device USB yang bermasalah waktu autosuspend (lag/disconnect saat
-# dipakai lagi), tambahkan ID vendor:product-nya (cek dengan `lsusb`), contoh:
-#   USB_EXCLUDE=("046d:c52b" "8087:0aaa")
 USB_EXCLUDE=()
 
 set_usb_autosuspend() {
-    local timeout="$1"   # detik. 0 = matikan autosuspend
+    local timeout="$1"
     for dev in /sys/bus/usb/devices/*/power/control; do
         [[ -e "$dev" ]] || continue
         local devdir
@@ -413,7 +387,7 @@ set_usb_autosuspend() {
 }
 
 set_pcie_aspm() {
-    local policy="$1"   # performance | powersave | default
+    local policy="$1"
     if [[ -w /sys/module/pcie_aspm/parameters/policy ]]; then
         echo "$policy" > /sys/module/pcie_aspm/parameters/policy 2>/dev/null || true
     fi
@@ -447,7 +421,6 @@ else
     BALANCED_GOVERNOR="powersave"
 fi
 
-# Kirim notifikasi/signal ke sesi desktop user (bukan root) lewat dbus session bus-nya
 notify_user() {
     local msg="$1"
     local target_user target_uid
@@ -466,14 +439,14 @@ if [[ "$ON_AC" == "1" ]]; then
     set_pcie_aspm performance
 
     echo "balanced" > "$STATE_FILE"
-    notify_user "🔌 AC connected → Balanced\nUSB: full power | PCIe: performance"
+    notify_user "AC connected -> Balanced. USB: full power, PCIe: performance"
 else
     cpupower frequency-set -g "powersave" &> /dev/null
     set_usb_autosuspend 2
     set_pcie_aspm powersave
 
     echo "powersave" > "$STATE_FILE"
-    notify_user "🔋 On battery → Power Saver\nUSB: autosuspend | PCIe: powersave"
+    notify_user "On battery -> Power Saver. USB: autosuspend, PCIe: powersave"
 fi
 SCRIPT_EOF
     sudo chmod +x /usr/local/bin/cpupower-auto.sh
