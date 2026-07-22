@@ -206,6 +206,12 @@ hl.bind("SUPER + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 hl.bind("SUPER + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
+--Power management (cpupower-switcher)
+hl.bind("SUPER + F1",         hl.dsp.exec_cmd("~/.config/scripts/cpupower-switcher"))
+hl.bind("SUPER + F2",         hl.dsp.exec_cmd("~/.config/scripts/cpupower-switcher performance"))
+hl.bind("SUPER + F3",         hl.dsp.exec_cmd("~/.config/scripts/cpupower-switcher balanced"))
+hl.bind("SUPER + F4",         hl.dsp.exec_cmd("~/.config/scripts/cpupower-switcher powersave"))
+
 hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
 hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
 hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true, repeating = true })
