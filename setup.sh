@@ -484,55 +484,6 @@ else
     log "sudoers rule for cpupower already exists, skipping"
 fi
 
-log "Adding power-mode module to Waybar config (if present)"
-WAYBAR_CONFIG="$HOME/.config/waybar/config.jsonc"
-WAYBAR_STYLE="$HOME/.config/waybar/style.css"
-
-if [[ -f "$WAYBAR_CONFIG" ]]; then
-    if ! grep -q '"custom/power-mode"' "$WAYBAR_CONFIG"; then
-        TMP_WAYBAR=$(mktemp)
-        jq '
-          .["modules-right"] |= (if index("custom/power-mode") then . else . + ["custom/power-mode"] end)
-          | .["custom/power-mode"] = {
-              "exec": "~/.config/scripts/waybar-power-mode",
-              "return-type": "json",
-              "interval": 5,
-              "signal": 8,
-              "on-click": "~/.config/scripts/cpupower-switcher",
-              "tooltip": true
-            }
-        ' "$WAYBAR_CONFIG" > "$TMP_WAYBAR" && mv "$TMP_WAYBAR" "$WAYBAR_CONFIG"
-        log "  added custom/power-mode module to $WAYBAR_CONFIG"
-    else
-        log "custom/power-mode module already present in waybar config, skipping"
-    fi
-else
-    warn "waybar config.jsonc not found at $WAYBAR_CONFIG, skipping power-mode module injection"
-fi
-
-if [[ -f "$WAYBAR_STYLE" ]] && ! grep -q "#custom-power-mode" "$WAYBAR_STYLE"; then
-    cat >> "$WAYBAR_STYLE" <<'EOF'
-
-#custom-power-mode {
-  padding: 0 10px;
-  margin: 7px 0;
-}
-
-#custom-power-mode.performance {
-  color: #f38ba8;
-}
-
-#custom-power-mode.balanced {
-  color: #a6e3a1;
-}
-
-#custom-power-mode.powersave {
-  color: #89b4fa;
-}
-EOF
-    log "  appended power-mode styles to $WAYBAR_STYLE"
-fi
-
 log "Running initial power-detection (sets governor/USB/PCIe based on current AC status)"
 sudo /usr/local/bin/cpupower-auto.sh || warn "Initial cpupower-auto run failed, check manually after reboot"
 
