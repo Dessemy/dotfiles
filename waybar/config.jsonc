@@ -9,7 +9,7 @@
   "margin-right": 10,
   "modules-left": ["hyprland/workspaces"],
   "modules-center": ["clock"],
-  "modules-right": ["memory", "temperature", "cpu", "pulseaudio", "battery"],
+  "modules-right": ["memory", "temperature", "cpu", "custom/power-mode", "pulseaudio", "battery"],
 
   "hyprland/workspaces": {
     "disable-scroll": false,
@@ -59,6 +59,15 @@
     "format": "  <span foreground='#cdd6f4'>{used}G</span>",
     "interval": 10,
     "tooltip-format": "{used:0.1f}G / {total:0.1f}G"
+  },
+
+  "custom/power-mode": {
+    "exec": "~/.local/bin/waybar-power-mode.sh",
+    "return-type": "json",
+    "interval": 5,
+    "signal": 8,
+    "on-click": "~/.local/bin/cpupower-switcher.sh",
+    "tooltip": true
   },
 
   "temperature": {
