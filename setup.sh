@@ -42,7 +42,7 @@ yay -S --needed --noconfirm \
     zsh starship zoxide jq fd fzf fastfetch eza bat ripgrep imagemagick ffmpeg \
     ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
     hyprlock hyprsunset hyprpicker hyprpaper hyprpolkitagent \
-    qutebrowser obs-studio vesktop-bin freedownloadmanager steam lutris \
+    qutebrowser obs-studio vesktop-bin freedownloadmanager-bin steam lutris \
     fuzzel waybar mako nwg-look
 
 log "Removing pre-existing nvidia-open (conflicts with nvidia-open-dkms)"
