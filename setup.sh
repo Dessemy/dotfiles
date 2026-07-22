@@ -37,7 +37,7 @@ fi
 log "Installing desktop and CLI packages via yay"
 yay -S --needed --noconfirm \
     ly seatd hyprland xdg-desktop-portal-hyprland qt5-wayland qt6-wayland smartmontools grim slurp nodejs npm openssh wget \
-    brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cliphist \
+    brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cliphist cpupower \
     foot herdr-bin neovim yazi bluetui impala wiremix btop cava ttyper mpv rmpc mpc mpd 7zip zip unzip \
     zsh starship zoxide jq fd fzf fastfetch eza bat ripgrep imagemagick ffmpeg \
     ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
@@ -224,6 +224,344 @@ EOF
 else
     warn "~/.config/scripts/batnotify not found, skipping battery-notify timer setup"
 fi
+
+log "Setting up CPU power profile switcher (performance/balanced/powersave)"
+SCRIPTS_DIR="$HOME/.config/scripts"
+mkdir -p "$SCRIPTS_DIR"
+
+if [[ ! -f "$SCRIPTS_DIR/cpupower-switcher" ]]; then
+    cat > "$SCRIPTS_DIR/cpupower-switcher" <<'SCRIPT_EOF'
+#!/usr/bin/env bash
+#
+# cpupower-switcher
+# Toggle / set mode performa CPU (performance, balanced, powersave)
+# menggunakan cpupower langsung, lengkap dengan notifikasi desktop.
+#
+# Usage:
+#   cpupower-switcher              -> cycle ke mode berikutnya
+#   cpupower-switcher performance  -> set langsung performance
+#   cpupower-switcher balanced     -> set langsung balanced (schedutil/ondemand)
+#   cpupower-switcher powersave    -> set langsung powersave
+
+set -euo pipefail
+
+STATE_FILE="/tmp/cpupower-switcher-current"
+
+if ! command -v cpupower &> /dev/null; then
+    notify-send -u critical "CPU Power" "cpupower tidak ditemukan. Install dulu: sudo pacman -S cpupower"
+    exit 1
+fi
+
+AVAILABLE_GOVERNORS=$(cpupower frequency-info -g 2>/dev/null | grep -oP '(?<=governors: ).*' || true)
+
+if echo "$AVAILABLE_GOVERNORS" | grep -qw schedutil; then
+    BALANCED_GOVERNOR="schedutil"
+elif echo "$AVAILABLE_GOVERNORS" | grep -qw ondemand; then
+    BALANCED_GOVERNOR="ondemand"
+else
+    BALANCED_GOVERNOR="powersave"
+fi
+
+declare -A LABELS=(
+    ["performance"]="🚀 Performance"
+    ["balanced"]="⚖️  Balanced (${BALANCED_GOVERNOR})"
+    ["powersave"]="🔋 Power Saver"
+)
+
+set_mode() {
+    local mode="$1"
+    local governor="$mode"
+
+    if [[ "$mode" == "balanced" ]]; then
+        governor="$BALANCED_GOVERNOR"
+    fi
+
+    sudo cpupower frequency-set -g "$governor" &> /dev/null
+
+    echo "$mode" > "$STATE_FILE"
+    # Tandai override manual, biar auto-switcher (udev, cpupower-auto.sh) tidak
+    # langsung menimpa pilihan manual ini dalam beberapa detik ke depan
+    date +%s > /tmp/cpupower-manual-override
+    notify-send -u normal "CPU Power Mode" "${LABELS[$mode]}" -t 1500
+
+    # Trigger Waybar custom module untuk refresh instan (lihat "signal" di config.jsonc)
+    pkill -RTMIN+8 waybar 2>/dev/null || true
+}
+
+CURRENT="balanced"
+if [[ -f "$STATE_FILE" ]]; then
+    CURRENT=$(cat "$STATE_FILE")
+fi
+
+if [[ $# -ge 1 ]]; then
+    case "$1" in
+        performance|balanced|powersave)
+            set_mode "$1"
+            ;;
+        *)
+            echo "Argumen tidak valid. Gunakan: performance | balanced | powersave"
+            exit 1
+            ;;
+    esac
+    exit 0
+fi
+
+case "$CURRENT" in
+    performance) set_mode "balanced" ;;
+    balanced)    set_mode "powersave" ;;
+    powersave)   set_mode "performance" ;;
+    *)           set_mode "balanced" ;;
+esac
+SCRIPT_EOF
+    chmod +x "$SCRIPTS_DIR/cpupower-switcher"
+    log "  created $SCRIPTS_DIR/cpupower-switcher"
+else
+    log "cpupower-switcher already exists, skipping"
+fi
+
+if [[ ! -f "$SCRIPTS_DIR/waybar-power-mode" ]]; then
+    cat > "$SCRIPTS_DIR/waybar-power-mode" <<'SCRIPT_EOF'
+#!/usr/bin/env bash
+#
+# waybar-power-mode
+# Menghasilkan output JSON untuk custom module Waybar, menampilkan
+# power mode aktif (performance/balanced/powersave) berdasarkan
+# STATE_FILE yang ditulis oleh cpupower-switcher / cpupower-auto.sh
+
+set -euo pipefail
+
+STATE_FILE="/tmp/cpupower-switcher-current"
+CURRENT="balanced"
+
+if [[ -f "$STATE_FILE" ]]; then
+    CURRENT=$(cat "$STATE_FILE")
+fi
+
+ACTUAL_GOVERNOR=$(cpupower frequency-info -p 2>/dev/null | grep -oP '(?<=governor ")[^"]+' || echo "unknown")
+
+case "$CURRENT" in
+    performance)
+        ICON="󰓅"
+        LABEL="Performance"
+        CLASS="performance"
+        ;;
+    powersave)
+        ICON="󰾆"
+        LABEL="Power Saver"
+        CLASS="powersave"
+        ;;
+    balanced|*)
+        ICON="󰾅"
+        LABEL="Balanced"
+        CLASS="balanced"
+        ;;
+esac
+
+TOOLTIP="Mode: ${LABEL}\nGovernor: ${ACTUAL_GOVERNOR}\nKlik untuk ganti mode"
+TOOLTIP_JSON=$(echo "$TOOLTIP" | sed 's/$/\\n/' | tr -d '\n')
+
+printf '{"text": "%s", "tooltip": "%s", "class": "%s", "alt": "%s"}\n' \
+    "$ICON" "$TOOLTIP_JSON" "$CLASS" "$CURRENT"
+SCRIPT_EOF
+    chmod +x "$SCRIPTS_DIR/waybar-power-mode"
+    log "  created $SCRIPTS_DIR/waybar-power-mode"
+else
+    log "waybar-power-mode already exists, skipping"
+fi
+
+log "Installing system-level cpupower-auto (AC/battery auto-switch) script"
+if [[ ! -f /usr/local/bin/cpupower-auto.sh ]]; then
+    sudo tee /usr/local/bin/cpupower-auto.sh > /dev/null <<'SCRIPT_EOF'
+#!/usr/bin/env bash
+#
+# cpupower-auto.sh
+# Auto-switch governor CPU + USB autosuspend + PCIe ASPM berdasarkan status AC/baterai.
+# Dipanggil otomatis oleh udev rule saat charger di-plug/unplug.
+# File ini dijalankan sebagai ROOT oleh udev, jadi tidak perlu sudo di dalamnya.
+
+set -euo pipefail
+
+# Kalau ada device USB yang bermasalah waktu autosuspend (lag/disconnect saat
+# dipakai lagi), tambahkan ID vendor:product-nya (cek dengan `lsusb`), contoh:
+#   USB_EXCLUDE=("046d:c52b" "8087:0aaa")
+USB_EXCLUDE=()
+
+set_usb_autosuspend() {
+    local timeout="$1"   # detik. 0 = matikan autosuspend
+    for dev in /sys/bus/usb/devices/*/power/control; do
+        [[ -e "$dev" ]] || continue
+        local devdir
+        devdir=$(dirname "$dev")
+        local id_vendor id_product usb_id
+        id_vendor=$(cat "$devdir/idVendor" 2>/dev/null || echo "")
+        id_product=$(cat "$devdir/idProduct" 2>/dev/null || echo "")
+        usb_id="${id_vendor}:${id_product}"
+
+        local skip=0
+        for excluded in "${USB_EXCLUDE[@]:-}"; do
+            [[ "$usb_id" == "$excluded" ]] && skip=1 && break
+        done
+        [[ "$skip" -eq 1 ]] && continue
+
+        if [[ "$timeout" -eq 0 ]]; then
+            echo "on" > "$dev" 2>/dev/null || true
+        else
+            echo "auto" > "$dev" 2>/dev/null || true
+            echo "$((timeout * 1000))" > "$devdir/power/autosuspend_delay_ms" 2>/dev/null || true
+        fi
+    done
+}
+
+set_pcie_aspm() {
+    local policy="$1"   # performance | powersave | default
+    if [[ -w /sys/module/pcie_aspm/parameters/policy ]]; then
+        echo "$policy" > /sys/module/pcie_aspm/parameters/policy 2>/dev/null || true
+    fi
+}
+
+STATE_FILE="/tmp/cpupower-switcher-current"
+OVERRIDE_FILE="/tmp/cpupower-manual-override"
+
+if [[ -f "$OVERRIDE_FILE" ]]; then
+    LAST_OVERRIDE=$(cat "$OVERRIDE_FILE")
+    NOW=$(date +%s)
+    if (( NOW - LAST_OVERRIDE < 5 )); then
+        exit 0
+    fi
+fi
+
+AC_STATUS_PATH=$(find /sys/class/power_supply -maxdepth 1 -name "A*" | head -n1)
+
+if [[ -z "$AC_STATUS_PATH" ]]; then
+    exit 0
+fi
+
+ON_AC=$(cat "$AC_STATUS_PATH/online" 2>/dev/null || echo "1")
+
+AVAILABLE_GOVERNORS=$(cpupower frequency-info -g 2>/dev/null | grep -oP '(?<=governors: ).*' || true)
+if echo "$AVAILABLE_GOVERNORS" | grep -qw schedutil; then
+    BALANCED_GOVERNOR="schedutil"
+elif echo "$AVAILABLE_GOVERNORS" | grep -qw ondemand; then
+    BALANCED_GOVERNOR="ondemand"
+else
+    BALANCED_GOVERNOR="powersave"
+fi
+
+# Kirim notifikasi/signal ke sesi desktop user (bukan root) lewat dbus session bus-nya
+notify_user() {
+    local msg="$1"
+    local target_user target_uid
+    target_user="$(logname 2>/dev/null || echo "${SUDO_USER:-}")"
+    [[ -z "$target_user" ]] && return 0
+    target_uid=$(id -u "$target_user" 2>/dev/null || echo "")
+    [[ -z "$target_uid" ]] && return 0
+    sudo -u "$target_user" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${target_uid}/bus" \
+        notify-send "Power Mode" "$msg" -t 2000 2>/dev/null || true
+    sudo -u "$target_user" pkill -RTMIN+8 waybar 2>/dev/null || true
+}
+
+if [[ "$ON_AC" == "1" ]]; then
+    cpupower frequency-set -g "$BALANCED_GOVERNOR" &> /dev/null
+    set_usb_autosuspend 0
+    set_pcie_aspm performance
+
+    echo "balanced" > "$STATE_FILE"
+    notify_user "🔌 AC connected → Balanced\nUSB: full power | PCIe: performance"
+else
+    cpupower frequency-set -g "powersave" &> /dev/null
+    set_usb_autosuspend 2
+    set_pcie_aspm powersave
+
+    echo "powersave" > "$STATE_FILE"
+    notify_user "🔋 On battery → Power Saver\nUSB: autosuspend | PCIe: powersave"
+fi
+SCRIPT_EOF
+    sudo chmod +x /usr/local/bin/cpupower-auto.sh
+    log "  created /usr/local/bin/cpupower-auto.sh"
+else
+    log "/usr/local/bin/cpupower-auto.sh already exists, skipping"
+fi
+
+log "Installing udev rule for AC plug/unplug auto power-switching"
+UDEV_RULE="/etc/udev/rules.d/99-cpupower-auto.rules"
+if [[ ! -f "$UDEV_RULE" ]]; then
+    sudo tee "$UDEV_RULE" > /dev/null <<'EOF'
+SUBSYSTEM=="power_supply", ATTR{online}=="0", RUN+="/usr/local/bin/cpupower-auto.sh"
+SUBSYSTEM=="power_supply", ATTR{online}=="1", RUN+="/usr/local/bin/cpupower-auto.sh"
+EOF
+    sudo udevadm control --reload-rules
+    log "  udev rule installed and reloaded"
+else
+    log "udev rule already exists, skipping"
+fi
+
+log "Granting passwordless sudo for cpupower frequency-set (needed for manual keybind switching)"
+SUDOERS_FILE="/etc/sudoers.d/cpupower"
+if [[ ! -f "$SUDOERS_FILE" ]]; then
+    TMP_SUDOERS=$(mktemp)
+    echo "$USER ALL=(root) NOPASSWD: /usr/bin/cpupower frequency-set*" > "$TMP_SUDOERS"
+    if sudo visudo -cf "$TMP_SUDOERS"; then
+        sudo install -m 0440 "$TMP_SUDOERS" "$SUDOERS_FILE"
+        log "  sudoers rule installed at $SUDOERS_FILE"
+    else
+        warn "Generated sudoers rule failed validation, skipping (cpupower-switcher will prompt for password)"
+    fi
+    rm -f "$TMP_SUDOERS"
+else
+    log "sudoers rule for cpupower already exists, skipping"
+fi
+
+log "Adding power-mode module to Waybar config (if present)"
+WAYBAR_CONFIG="$HOME/.config/waybar/config.jsonc"
+WAYBAR_STYLE="$HOME/.config/waybar/style.css"
+
+if [[ -f "$WAYBAR_CONFIG" ]]; then
+    if ! grep -q '"custom/power-mode"' "$WAYBAR_CONFIG"; then
+        TMP_WAYBAR=$(mktemp)
+        jq '
+          .["modules-right"] |= (if index("custom/power-mode") then . else . + ["custom/power-mode"] end)
+          | .["custom/power-mode"] = {
+              "exec": "~/.config/scripts/waybar-power-mode",
+              "return-type": "json",
+              "interval": 5,
+              "signal": 8,
+              "on-click": "~/.config/scripts/cpupower-switcher",
+              "tooltip": true
+            }
+        ' "$WAYBAR_CONFIG" > "$TMP_WAYBAR" && mv "$TMP_WAYBAR" "$WAYBAR_CONFIG"
+        log "  added custom/power-mode module to $WAYBAR_CONFIG"
+    else
+        log "custom/power-mode module already present in waybar config, skipping"
+    fi
+else
+    warn "waybar config.jsonc not found at $WAYBAR_CONFIG, skipping power-mode module injection"
+fi
+
+if [[ -f "$WAYBAR_STYLE" ]] && ! grep -q "#custom-power-mode" "$WAYBAR_STYLE"; then
+    cat >> "$WAYBAR_STYLE" <<'EOF'
+
+#custom-power-mode {
+  padding: 0 10px;
+  margin: 7px 0;
+}
+
+#custom-power-mode.performance {
+  color: #f38ba8;
+}
+
+#custom-power-mode.balanced {
+  color: #a6e3a1;
+}
+
+#custom-power-mode.powersave {
+  color: #89b4fa;
+}
+EOF
+    log "  appended power-mode styles to $WAYBAR_STYLE"
+fi
+
+log "Running initial power-detection (sets governor/USB/PCIe based on current AC status)"
+sudo /usr/local/bin/cpupower-auto.sh || warn "Initial cpupower-auto run failed, check manually after reboot"
 
 log "Disabling rtw89 power save (fixes lag/disconnect on RTL8852BE/AE/CE wifi)"
 RTW89_CONF="/etc/modprobe.d/rtw89.conf"
