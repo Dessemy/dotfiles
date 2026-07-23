@@ -37,12 +37,12 @@ fi
 log "Installing desktop and CLI packages via yay"
 yay -S --needed --noconfirm \
     ly seatd hyprland xdg-desktop-portal-hyprland qt5-wayland qt6-wayland smartmontools grim slurp nodejs npm openssh wget \
-    brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cliphist cpupower \
+    brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cliphist \
     foot herdr-bin neovim yazi bluetui impala wiremix btop cava ttyper mpv rmpc mpc mpd 7zip zip unzip \
     zsh starship zoxide jq fd fzf fastfetch eza bat ripgrep imagemagick ffmpeg \
     ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
     hyprlock hyprsunset hyprpicker hyprpaper hyprpolkitagent \
-    qutebrowser obs-studio vesktop-bin freedownloadmanager-bin steam lutris \
+    qutebrowser obs-studio vesktop-bin freedownloadmanager steam lutris \
     fuzzel waybar mako nwg-look
 
 log "Removing pre-existing nvidia-open (conflicts with nvidia-open-dkms)"
@@ -225,54 +225,127 @@ else
     warn "~/.config/scripts/batnotify not found, skipping battery-notify timer setup"
 fi
 
-log "Setting up CPU power profile switcher (performance/balanced/powersave)"
-SCRIPTS_DIR="$HOME/.config/scripts"
-mkdir -p "$SCRIPTS_DIR"
+log "Installing TLP for power management"
+sudo pacman -S --needed --noconfirm tlp tlp-rdw
+sudo systemctl mask power-profiles-daemon.service 2>/dev/null || true
+sudo systemctl unmask tlp.service 2>/dev/null || true
 
-if [[ ! -f "$SCRIPTS_DIR/cpupower-switcher" ]]; then
-    cat > "$SCRIPTS_DIR/cpupower-switcher" <<'SCRIPT_EOF'
+log "Creating TLP mode profiles (performance/balanced/powersave)"
+sudo mkdir -p /etc/tlp.d/profiles
+
+sudo tee /etc/tlp.d/profiles/performance.conf > /dev/null <<'PROFILE_EOF'
+CPU_SCALING_GOVERNOR_ON_AC=performance
+CPU_SCALING_GOVERNOR_ON_BAT=performance
+CPU_ENERGY_PERF_POLICY_ON_AC=performance
+CPU_ENERGY_PERF_POLICY_ON_BAT=performance
+CPU_BOOST_ON_AC=1
+CPU_BOOST_ON_BAT=1
+PLATFORM_PROFILE_ON_AC=performance
+PLATFORM_PROFILE_ON_BAT=performance
+USB_AUTOSUSPEND=0
+RUNTIME_PM_ON_AC=on
+RUNTIME_PM_ON_BAT=on
+PROFILE_EOF
+
+sudo tee /etc/tlp.d/profiles/balanced.conf > /dev/null <<'PROFILE_EOF'
+CPU_SCALING_GOVERNOR_ON_AC=schedutil
+CPU_SCALING_GOVERNOR_ON_BAT=schedutil
+CPU_ENERGY_PERF_POLICY_ON_AC=balance_performance
+CPU_ENERGY_PERF_POLICY_ON_BAT=balance_power
+CPU_BOOST_ON_AC=1
+CPU_BOOST_ON_BAT=0
+PLATFORM_PROFILE_ON_AC=balanced
+PLATFORM_PROFILE_ON_BAT=balanced
+USB_AUTOSUSPEND=0
+RUNTIME_PM_ON_AC=on
+RUNTIME_PM_ON_BAT=on
+PROFILE_EOF
+
+sudo tee /etc/tlp.d/profiles/powersave.conf > /dev/null <<'PROFILE_EOF'
+CPU_SCALING_GOVERNOR_ON_AC=powersave
+CPU_SCALING_GOVERNOR_ON_BAT=powersave
+CPU_ENERGY_PERF_POLICY_ON_AC=power
+CPU_ENERGY_PERF_POLICY_ON_BAT=power
+CPU_BOOST_ON_AC=0
+CPU_BOOST_ON_BAT=0
+PLATFORM_PROFILE_ON_AC=low-power
+PLATFORM_PROFILE_ON_BAT=low-power
+USB_AUTOSUSPEND=0
+RUNTIME_PM_ON_AC=on
+RUNTIME_PM_ON_BAT=on
+PROFILE_EOF
+
+log "Installing tlp-set-mode wrapper (applies selected profile as active TLP config)"
+if [[ ! -f /usr/local/bin/tlp-set-mode.sh ]]; then
+    sudo tee /usr/local/bin/tlp-set-mode.sh > /dev/null <<'SCRIPT_EOF'
 #!/usr/bin/env bash
 
 set -euo pipefail
 
-STATE_FILE="/tmp/cpupower-switcher-current"
+MODE="${1:-}"
+PROFILE_DIR="/etc/tlp.d/profiles"
+ACTIVE_CONF="/etc/tlp.d/00-mode.conf"
+STATE_FILE="/tmp/tlp-switcher-current"
 
-if ! command -v cpupower &> /dev/null; then
-    notify-send -u critical "CPU Power" "cpupower tidak ditemukan. Install dulu: sudo pacman -S cpupower"
-    exit 1
-fi
-
-AVAILABLE_GOVERNORS=$(cpupower frequency-info -g 2>/dev/null | grep -oP '(?<=governors: ).*' || true)
-
-if echo "$AVAILABLE_GOVERNORS" | grep -qw schedutil; then
-    BALANCED_GOVERNOR="schedutil"
-elif echo "$AVAILABLE_GOVERNORS" | grep -qw ondemand; then
-    BALANCED_GOVERNOR="ondemand"
+case "$MODE" in
+    performance|balanced|powersave)
+        cp "$PROFILE_DIR/$MODE.conf" "$ACTIVE_CONF"
+        echo "$MODE" > "$STATE_FILE"
+        tlp start &> /dev/null
+        ;;
+    *)
+        echo "Usage: tlp-set-mode.sh performance|balanced|powersave" >&2
+        exit 1
+        ;;
+esac
+SCRIPT_EOF
+    sudo chmod +x /usr/local/bin/tlp-set-mode.sh
+    log "  created /usr/local/bin/tlp-set-mode.sh"
 else
-    BALANCED_GOVERNOR="powersave"
+    log "/usr/local/bin/tlp-set-mode.sh already exists, skipping"
 fi
+
+log "Granting passwordless sudo for tlp-set-mode.sh (needed for manual keybind switching)"
+SUDOERS_FILE="/etc/sudoers.d/tlp-set-mode"
+if [[ ! -f "$SUDOERS_FILE" ]]; then
+    TMP_SUDOERS=$(mktemp)
+    echo "$USER ALL=(root) NOPASSWD: /usr/local/bin/tlp-set-mode.sh *" > "$TMP_SUDOERS"
+    if sudo visudo -cf "$TMP_SUDOERS"; then
+        sudo install -m 0440 "$TMP_SUDOERS" "$SUDOERS_FILE"
+        log "  sudoers rule installed at $SUDOERS_FILE"
+    else
+        warn "Generated sudoers rule failed validation, skipping (tlp-switcher will prompt for password)"
+    fi
+    rm -f "$TMP_SUDOERS"
+else
+    log "sudoers rule for tlp-set-mode already exists, skipping"
+fi
+
+log "Creating tlp-switcher and waybar-tlp-mode scripts in ~/.config/scripts"
+SCRIPTS_DIR="$HOME/.config/scripts"
+mkdir -p "$SCRIPTS_DIR"
+
+if [[ ! -f "$SCRIPTS_DIR/tlp-switcher" ]]; then
+    cat > "$SCRIPTS_DIR/tlp-switcher" <<'SCRIPT_EOF'
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+STATE_FILE="/tmp/tlp-switcher-current"
 
 declare -A LABELS=(
     ["performance"]="Performance"
-    ["balanced"]="Balanced (${BALANCED_GOVERNOR})"
+    ["balanced"]="Balanced"
     ["powersave"]="Power Saver"
 )
 
 set_mode() {
     local mode="$1"
-    local governor="$mode"
-
-    if [[ "$mode" == "balanced" ]]; then
-        governor="$BALANCED_GOVERNOR"
+    sudo /usr/local/bin/tlp-set-mode.sh "$mode"
+    notify-send -u normal "Power Mode" "${LABELS[$mode]}" -t 1500
+    if pgrep -x waybar &>/dev/null; then
+        pkill -RTMIN+8 waybar 2>/dev/null || true
     fi
-
-    sudo cpupower frequency-set -g "$governor" &> /dev/null
-
-    echo "$mode" > "$STATE_FILE"
-    date +%s > /tmp/cpupower-manual-override
-    notify-send -u normal "CPU Power Mode" "${LABELS[$mode]}" -t 1500
-
-    pkill -RTMIN+8 waybar 2>/dev/null || true
 }
 
 CURRENT="balanced"
@@ -300,26 +373,26 @@ case "$CURRENT" in
     *)           set_mode "balanced" ;;
 esac
 SCRIPT_EOF
-    chmod +x "$SCRIPTS_DIR/cpupower-switcher"
-    log "  created $SCRIPTS_DIR/cpupower-switcher"
+    chmod +x "$SCRIPTS_DIR/tlp-switcher"
+    log "  created $SCRIPTS_DIR/tlp-switcher"
 else
-    log "cpupower-switcher already exists, skipping"
+    log "tlp-switcher already exists, skipping"
 fi
 
-if [[ ! -f "$SCRIPTS_DIR/waybar-power-mode" ]]; then
-    cat > "$SCRIPTS_DIR/waybar-power-mode" <<'SCRIPT_EOF'
+if [[ ! -f "$SCRIPTS_DIR/waybar-tlp-mode" ]]; then
+    cat > "$SCRIPTS_DIR/waybar-tlp-mode" <<'SCRIPT_EOF'
 #!/usr/bin/env bash
 
 set -euo pipefail
 
-STATE_FILE="/tmp/cpupower-switcher-current"
+STATE_FILE="/tmp/tlp-switcher-current"
 CURRENT="balanced"
 
 if [[ -f "$STATE_FILE" ]]; then
     CURRENT=$(cat "$STATE_FILE")
 fi
 
-ACTUAL_GOVERNOR=$(cpupower frequency-info -p 2>/dev/null | grep -oP '(?<=governor ")[^"]+' || echo "unknown")
+GOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null || echo "unknown")
 
 case "$CURRENT" in
     performance)
@@ -339,153 +412,23 @@ case "$CURRENT" in
         ;;
 esac
 
-TOOLTIP="Mode: ${LABEL}\nGovernor: ${ACTUAL_GOVERNOR}\nKlik untuk ganti mode"
+TOOLTIP="Mode: ${LABEL}\nGovernor: ${GOVERNOR}\nKlik untuk ganti mode"
 TOOLTIP_JSON=$(echo "$TOOLTIP" | sed 's/$/\\n/' | tr -d '\n')
 
 printf '{"text": "%s", "tooltip": "%s", "class": "%s", "alt": "%s"}\n' \
     "$ICON" "$TOOLTIP_JSON" "$CLASS" "$CURRENT"
 SCRIPT_EOF
-    chmod +x "$SCRIPTS_DIR/waybar-power-mode"
-    log "  created $SCRIPTS_DIR/waybar-power-mode"
+    chmod +x "$SCRIPTS_DIR/waybar-tlp-mode"
+    log "  created $SCRIPTS_DIR/waybar-tlp-mode"
 else
-    log "waybar-power-mode already exists, skipping"
+    log "waybar-tlp-mode already exists, skipping"
 fi
 
-log "Installing system-level cpupower-auto (AC/battery auto-switch) script"
-if [[ ! -f /usr/local/bin/cpupower-auto.sh ]]; then
-    sudo tee /usr/local/bin/cpupower-auto.sh > /dev/null <<'SCRIPT_EOF'
-#!/usr/bin/env bash
+log "Enabling tlp.service"
+sudo systemctl enable --now tlp.service
 
-set -euo pipefail
-
-USB_EXCLUDE=()
-
-set_usb_autosuspend() {
-    local timeout="$1"
-    for dev in /sys/bus/usb/devices/*/power/control; do
-        [[ -e "$dev" ]] || continue
-        local devdir
-        devdir=$(dirname "$dev")
-        local id_vendor id_product usb_id
-        id_vendor=$(cat "$devdir/idVendor" 2>/dev/null || echo "")
-        id_product=$(cat "$devdir/idProduct" 2>/dev/null || echo "")
-        usb_id="${id_vendor}:${id_product}"
-
-        local skip=0
-        for excluded in "${USB_EXCLUDE[@]:-}"; do
-            [[ "$usb_id" == "$excluded" ]] && skip=1 && break
-        done
-        [[ "$skip" -eq 1 ]] && continue
-
-        if [[ "$timeout" -eq 0 ]]; then
-            echo "on" > "$dev" 2>/dev/null || true
-        else
-            echo "auto" > "$dev" 2>/dev/null || true
-            echo "$((timeout * 1000))" > "$devdir/power/autosuspend_delay_ms" 2>/dev/null || true
-        fi
-    done
-}
-
-set_pcie_aspm() {
-    local policy="$1"
-    if [[ -w /sys/module/pcie_aspm/parameters/policy ]]; then
-        echo "$policy" > /sys/module/pcie_aspm/parameters/policy 2>/dev/null || true
-    fi
-}
-
-STATE_FILE="/tmp/cpupower-switcher-current"
-OVERRIDE_FILE="/tmp/cpupower-manual-override"
-
-if [[ -f "$OVERRIDE_FILE" ]]; then
-    LAST_OVERRIDE=$(cat "$OVERRIDE_FILE")
-    NOW=$(date +%s)
-    if (( NOW - LAST_OVERRIDE < 5 )); then
-        exit 0
-    fi
-fi
-
-AC_STATUS_PATH=$(find /sys/class/power_supply -maxdepth 1 -name "A*" | head -n1)
-
-if [[ -z "$AC_STATUS_PATH" ]]; then
-    exit 0
-fi
-
-ON_AC=$(cat "$AC_STATUS_PATH/online" 2>/dev/null || echo "1")
-
-AVAILABLE_GOVERNORS=$(cpupower frequency-info -g 2>/dev/null | grep -oP '(?<=governors: ).*' || true)
-if echo "$AVAILABLE_GOVERNORS" | grep -qw schedutil; then
-    BALANCED_GOVERNOR="schedutil"
-elif echo "$AVAILABLE_GOVERNORS" | grep -qw ondemand; then
-    BALANCED_GOVERNOR="ondemand"
-else
-    BALANCED_GOVERNOR="powersave"
-fi
-
-notify_user() {
-    local msg="$1"
-    local target_user target_uid
-    target_user="$(logname 2>/dev/null || echo "${SUDO_USER:-}")"
-    [[ -z "$target_user" ]] && return 0
-    target_uid=$(id -u "$target_user" 2>/dev/null || echo "")
-    [[ -z "$target_uid" ]] && return 0
-    sudo -u "$target_user" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${target_uid}/bus" \
-        notify-send "Power Mode" "$msg" -t 2000 2>/dev/null || true
-    sudo -u "$target_user" pkill -RTMIN+8 waybar 2>/dev/null || true
-}
-
-if [[ "$ON_AC" == "1" ]]; then
-    cpupower frequency-set -g "$BALANCED_GOVERNOR" &> /dev/null
-    set_usb_autosuspend 0
-    set_pcie_aspm performance
-
-    echo "balanced" > "$STATE_FILE"
-    notify_user "AC connected -> Balanced. USB: full power, PCIe: performance"
-else
-    cpupower frequency-set -g "powersave" &> /dev/null
-    set_usb_autosuspend 2
-    set_pcie_aspm powersave
-
-    echo "powersave" > "$STATE_FILE"
-    notify_user "On battery -> Power Saver. USB: autosuspend, PCIe: powersave"
-fi
-SCRIPT_EOF
-    sudo chmod +x /usr/local/bin/cpupower-auto.sh
-    log "  created /usr/local/bin/cpupower-auto.sh"
-else
-    log "/usr/local/bin/cpupower-auto.sh already exists, skipping"
-fi
-
-log "Installing udev rule for AC plug/unplug auto power-switching"
-UDEV_RULE="/etc/udev/rules.d/99-cpupower-auto.rules"
-if [[ ! -f "$UDEV_RULE" ]]; then
-    sudo tee "$UDEV_RULE" > /dev/null <<'EOF'
-SUBSYSTEM=="power_supply", ATTR{online}=="0", RUN+="/usr/local/bin/cpupower-auto.sh"
-SUBSYSTEM=="power_supply", ATTR{online}=="1", RUN+="/usr/local/bin/cpupower-auto.sh"
-EOF
-    sudo udevadm control --reload-rules
-    log "  udev rule installed and reloaded"
-else
-    log "udev rule already exists, skipping"
-fi
-
-log "Granting passwordless sudo for cpupower frequency-set (needed for manual keybind switching)"
-SUDOERS_FILE="/etc/sudoers.d/cpupower"
-if [[ ! -f "$SUDOERS_FILE" ]]; then
-    TMP_SUDOERS=$(mktemp)
-    echo "$USER ALL=(root) NOPASSWD: /usr/bin/cpupower frequency-set*" > "$TMP_SUDOERS"
-    if sudo visudo -cf "$TMP_SUDOERS"; then
-        sudo install -m 0440 "$TMP_SUDOERS" "$SUDOERS_FILE"
-        log "  sudoers rule installed at $SUDOERS_FILE"
-    else
-        warn "Generated sudoers rule failed validation, skipping (cpupower-switcher will prompt for password)"
-    fi
-    rm -f "$TMP_SUDOERS"
-else
-    log "sudoers rule for cpupower already exists, skipping"
-fi
-
-log "Running initial power-detection (sets governor/USB/PCIe based on current AC status)"
-sudo /usr/local/bin/cpupower-auto.sh || warn "Initial cpupower-auto run failed, check manually after reboot"
+log "Applying default TLP mode (balanced)"
+sudo /usr/local/bin/tlp-set-mode.sh balanced || warn "Initial tlp-set-mode run failed, check manually after reboot"
 
 log "Disabling rtw89 power save (fixes lag/disconnect on RTL8852BE/AE/CE wifi)"
 RTW89_CONF="/etc/modprobe.d/rtw89.conf"
