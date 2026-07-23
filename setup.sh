@@ -10,6 +10,15 @@ if [[ $EUID -eq 0 ]]; then
     exit 1
 fi
 
+log "Installing reflector and generating a fresh, speed-sorted mirrorlist"
+sudo pacman -S --needed --noconfirm reflector
+sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+sudo reflector --country Indonesia,Singapore --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist \
+    || warn "reflector failed to generate mirrorlist, keeping existing one ($(readlink -f /etc/pacman.d/mirrorlist.bak))"
+
+log "Force-refreshing pacman mirror database (fixes stale/slow mirror timeouts)"
+sudo pacman -Syyu --noconfirm
+
 log "Updating system and installing linux-zen kernel"
 sudo pacman -Syu --needed --noconfirm linux-zen linux-zen-headers
 
