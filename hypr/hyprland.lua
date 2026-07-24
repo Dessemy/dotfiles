@@ -59,16 +59,10 @@ hl.config({
 
         shadow = {
             enabled      = false,
-            range        = 20,
-            render_power = 3,
-            color        = 0xee101315,
         },
 
         blur = {
             enabled  = false,
-            size     = 20,
-            passes   = 3,
-            vibrancy = 0.1696,
         },
     },
 
@@ -172,7 +166,7 @@ hl.bind("SUPER + B", hl.dsp.exec_cmd("foot -e bluetui"))
 hl.bind("SUPER + T", hl.dsp.exec_cmd("foot -e ttyper"))
 hl.bind("SUPER + W", hl.dsp.exec_cmd("foot -e wiremix"))
 hl.bind("SUPER + I", hl.dsp.exec_cmd("foot -e impala"))
-hl.bind("SUPER + TAB", hl.dsp.exec_cmd("~/.config/scripts/fuzzel"))
+hl.bind("SUPER + TAB", hl.dsp.exec_cmd("~/.config/scripts/fuzl"))
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("~/.config/scripts/wybr"))
 hl.bind("SUPER + F1",  hl.dsp.exec_cmd("~/.config/scripts/tlp-switcher"))
 hl.bind("SUPER + F2", hl.dsp.exec_cmd("~/.config/scripts/tlp-switcher performance"))
