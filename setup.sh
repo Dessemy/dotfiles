@@ -10,6 +10,9 @@ if [[ $EUID -eq 0 ]]; then
     exit 1
 fi
 
+log "Force-refreshing pacman mirror database (fixes stale/slow mirror timeouts)"
+sudo pacman -Syyu --noconfirm
+
 log "Updating system and installing linux-zen kernel"
 sudo pacman -Syu --needed --noconfirm linux-zen linux-zen-headers
 
@@ -195,7 +198,7 @@ log "Setting up battery-notify systemd user timer"
 SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
 mkdir -p "$SYSTEMD_USER_DIR"
 
-if [[ -f "$HOME/.config/scripts/battery-notify.sh" ]]; then
+if [[ -f "$HOME/.config/scripts/batnotify" ]]; then
     cat > "$SYSTEMD_USER_DIR/battery-notify.service" <<'EOF'
 [Unit]
 Description=Battery percentage notification
@@ -527,13 +530,6 @@ elif ! grep -q "DisablePeriodicScan=true" "$IWD_CONF"; then
     sudo sed -i '/^\[Scan\]/a DisablePeriodicScan=true' "$IWD_CONF"
 else
     log "iwd periodic scan already disabled, skipping"
-fi
-
-log "Making sure NetworkManager is disabled (standalone iwd setup, install may not even have it)"
-if systemctl list-unit-files NetworkManager.service &>/dev/null; then
-    sudo systemctl disable --now NetworkManager 2>/dev/null || true
-else
-    log "NetworkManager not installed, nothing to disable"
 fi
 
 log "Unblocking rfkill (in case it's blocked after install)"
