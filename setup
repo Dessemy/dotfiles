@@ -13,17 +13,6 @@ fi
 log "Force-refreshing pacman mirror database (fixes stale/slow mirror timeouts)"
 sudo pacman -Syyu --noconfirm
 
-log "Updating system and installing linux-zen kernel"
-sudo pacman -Syu --needed --noconfirm linux-zen linux-zen-headers
-
-log "Enabling multilib repository"
-if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
-    sudo sed -i "/^#\[multilib\]/,/^#Include/"'s/^#//' /etc/pacman.conf
-    sudo pacman -Sy
-else
-    log "multilib already enabled"
-fi
-
 log "Installing base-devel"
 sudo pacman -S --needed --noconfirm base-devel
 
