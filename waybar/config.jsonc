@@ -62,11 +62,11 @@
   },
 
   "custom/power-mode": {
-    "exec": "~/.config/scripts/waybar-tlp-mode",
+    "exec": "~/.local/bin/waybar-power-mode.sh",
     "return-type": "json",
     "interval": 5,
     "signal": 8,
-    "on-click": "~/.config/scripts/tlp-switcher",
+    "on-click": "~/.local/bin/cpupower-switcher.sh",
     "tooltip": true
   },
 
