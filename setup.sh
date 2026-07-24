@@ -198,7 +198,7 @@ log "Setting up battery-notify systemd user timer"
 SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
 mkdir -p "$SYSTEMD_USER_DIR"
 
-if [[ -f "$HOME/.config/scripts/battery-notify.sh" ]]; then
+if [[ -f "$HOME/.config/scripts/batnotify" ]]; then
     cat > "$SYSTEMD_USER_DIR/battery-notify.service" <<'EOF'
 [Unit]
 Description=Battery percentage notification
