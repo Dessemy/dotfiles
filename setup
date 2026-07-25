@@ -10,7 +10,7 @@ if [[ $EUID -eq 0 ]]; then
     exit 1
 fi
 
-log "Force-refreshing pacman mirror database (fixes stale/slow mirror timeouts)"
+log "Force-refreshing pacman mirror database"
 sudo pacman -Syyu --noconfirm
 
 log "Installing base-devel"
@@ -29,7 +29,7 @@ fi
 log "Installing desktop and CLI packages via yay"
 yay -S --needed --noconfirm \
     ly seatd hyprland xdg-desktop-portal-hyprland qt5-wayland qt6-wayland smartmontools grim slurp nodejs npm openssh wget \
-    brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cliphist cpupower \
+    brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cpupower cliphist \
     foot herdr-bin neovim yazi bluetui impala wiremix btop cava ttyper mpv rmpc mpc mpd 7zip zip unzip \
     zsh starship zoxide jq fd fzf fastfetch eza bat ripgrep imagemagick ffmpeg \
     ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
@@ -47,7 +47,7 @@ sudo pacman -S --needed --noconfirm \
     mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon \
     vulkan-icd-loader lib32-vulkan-icd-loader \
     nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
-    
+
 log "Removing splash logo from linux-zen UKI preset"
 PRESET_FILE="/etc/mkinitcpio.d/linux-zen.preset"
 if [[ -f "$PRESET_FILE" ]] && grep -q -- "--splash" "$PRESET_FILE"; then
@@ -158,7 +158,7 @@ mkdir -p "$HOME/Pictures/Wallpapers" "$HOME/Pictures/Screenshots" "$HOME/Downloa
 
 log "Copying dotfiles configs into ~/.config"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_DIRS=(btop fastfetch foot fuzzel herdr hypr mako qutebrowser scripts waybar yazi nvim zsh)
+CONFIG_DIRS=(btop fastfetch foot fuzzel herdr hypr mako mpd rmpc systemd qutebrowser scripts waybar yazi nvim zsh)
 mkdir -p "$HOME/.config"
 for dir in "${CONFIG_DIRS[@]}"; do
     if [[ -d "$SCRIPT_DIR/$dir" ]]; then
@@ -183,164 +183,23 @@ if [[ -d "$HOME/.config/scripts" ]]; then
     fi
 fi
 
-log "Setting up battery-notify systemd user timer"
-SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
-mkdir -p "$SYSTEMD_USER_DIR"
-
-if [[ -f "$HOME/.config/scripts/batnotify" ]]; then
-    cat > "$SYSTEMD_USER_DIR/battery-notify.service" <<'EOF'
-[Unit]
-Description=Battery percentage notification
-
-[Service]
-Type=oneshot
-ExecStart=%h/.config/scripts/batnotify
-EOF
-
-    cat > "$SYSTEMD_USER_DIR/battery-notify.timer" <<'EOF'
-[Unit]
-Description=Run battery percentage check every 60 seconds
-
-[Timer]
-OnBootSec=30sec
-OnUnitActiveSec=60sec
-AccuracySec=5sec
-
-[Install]
-WantedBy=timers.target
-EOF
-
-    systemctl --user daemon-reload
-    systemctl --user enable --now battery-notify.timer
-    log "  battery-notify.timer enabled"
-else
-    warn "~/.config/scripts/batnotify not found, skipping battery-notify timer setup"
-fi
-
-log "Setting up CPU power profile switcher (performance/balanced/powersave)"
-SCRIPTS_DIR="$HOME/.config/scripts"
-mkdir -p "$SCRIPTS_DIR"
-
-if [[ ! -f "$SCRIPTS_DIR/cpupower-switcher" ]]; then
-    cat > "$SCRIPTS_DIR/cpupower-switcher" <<'SCRIPT_EOF'
-#!/usr/bin/env bash
-
-set -euo pipefail
-
-STATE_FILE="/tmp/cpupower-switcher-current"
-
-if ! command -v cpupower &> /dev/null; then
-    notify-send -u critical "CPU Power" "cpupower tidak ditemukan. Install dulu: sudo pacman -S cpupower"
-    exit 1
-fi
-
-AVAILABLE_GOVERNORS=$(cpupower frequency-info -g 2>/dev/null | grep -oP '(?<=governors: ).*' || true)
-
-if echo "$AVAILABLE_GOVERNORS" | grep -qw schedutil; then
-    BALANCED_GOVERNOR="schedutil"
-elif echo "$AVAILABLE_GOVERNORS" | grep -qw ondemand; then
-    BALANCED_GOVERNOR="ondemand"
-else
-    BALANCED_GOVERNOR="powersave"
-fi
-
-declare -A LABELS=(
-    ["performance"]="Performance"
-    ["balanced"]="Balanced (${BALANCED_GOVERNOR})"
-    ["powersave"]="Power Saver"
-)
-
-set_mode() {
-    local mode="$1"
-    local governor="$mode"
-
-    if [[ "$mode" == "balanced" ]]; then
-        governor="$BALANCED_GOVERNOR"
+log "Granting passwordless sudo for cpupower (needed for manual keybind switching)"
+SUDOERS_FILE="/etc/sudoers.d/cpupower"
+if [[ ! -f "$SUDOERS_FILE" ]]; then
+    TMP_SUDOERS=$(mktemp)
+    {
+        echo "$USER ALL=(root) NOPASSWD: /usr/bin/cpupower frequency-set*"
+        echo "$USER ALL=(root) NOPASSWD: /usr/bin/cpupower set*"
+    } > "$TMP_SUDOERS"
+    if sudo visudo -cf "$TMP_SUDOERS"; then
+        sudo install -m 0440 "$TMP_SUDOERS" "$SUDOERS_FILE"
+        log "  sudoers rule installed at $SUDOERS_FILE"
+    else
+        warn "Generated sudoers rule failed validation, skipping (cpupower-switcher will prompt for password)"
     fi
-
-    sudo cpupower frequency-set -g "$governor" &> /dev/null
-
-    echo "$mode" > "$STATE_FILE"
-    date +%s > /tmp/cpupower-manual-override
-    notify-send -u normal "CPU Power Mode" "${LABELS[$mode]}" -t 1500
-
-    pkill -RTMIN+8 waybar 2>/dev/null || true
-}
-
-CURRENT="balanced"
-if [[ -f "$STATE_FILE" ]]; then
-    CURRENT=$(cat "$STATE_FILE")
-fi
-
-if [[ $# -ge 1 ]]; then
-    case "$1" in
-        performance|balanced|powersave)
-            set_mode "$1"
-            ;;
-        *)
-            echo "Argumen tidak valid. Gunakan: performance | balanced | powersave"
-            exit 1
-            ;;
-    esac
-    exit 0
-fi
-
-case "$CURRENT" in
-    performance) set_mode "balanced" ;;
-    balanced)    set_mode "powersave" ;;
-    powersave)   set_mode "performance" ;;
-    *)           set_mode "balanced" ;;
-esac
-SCRIPT_EOF
-    chmod +x "$SCRIPTS_DIR/cpupower-switcher"
-    log "  created $SCRIPTS_DIR/cpupower-switcher"
+    rm -f "$TMP_SUDOERS"
 else
-    log "cpupower-switcher already exists, skipping"
-fi
-
-if [[ ! -f "$SCRIPTS_DIR/waybar-power-mode" ]]; then
-    cat > "$SCRIPTS_DIR/waybar-power-mode" <<'SCRIPT_EOF'
-#!/usr/bin/env bash
-
-set -euo pipefail
-
-STATE_FILE="/tmp/cpupower-switcher-current"
-CURRENT="balanced"
-
-if [[ -f "$STATE_FILE" ]]; then
-    CURRENT=$(cat "$STATE_FILE")
-fi
-
-ACTUAL_GOVERNOR=$(cpupower frequency-info -p 2>/dev/null | grep -oP '(?<=governor ")[^"]+' || echo "unknown")
-
-case "$CURRENT" in
-    performance)
-        ICON="󰓅"
-        LABEL="Performance"
-        CLASS="performance"
-        ;;
-    powersave)
-        ICON="󰾆"
-        LABEL="Power Saver"
-        CLASS="powersave"
-        ;;
-    balanced|*)
-        ICON="󰾅"
-        LABEL="Balanced"
-        CLASS="balanced"
-        ;;
-esac
-
-TOOLTIP="Mode: ${LABEL}\nGovernor: ${ACTUAL_GOVERNOR}\nKlik untuk ganti mode"
-TOOLTIP_JSON=$(echo "$TOOLTIP" | sed 's/$/\\n/' | tr -d '\n')
-
-printf '{"text": "%s", "tooltip": "%s", "class": "%s", "alt": "%s"}\n' \
-    "$ICON" "$TOOLTIP_JSON" "$CLASS" "$CURRENT"
-SCRIPT_EOF
-    chmod +x "$SCRIPTS_DIR/waybar-power-mode"
-    log "  created $SCRIPTS_DIR/waybar-power-mode"
-else
-    log "waybar-power-mode already exists, skipping"
+    log "sudoers rule for cpupower already exists, skipping"
 fi
 
 log "Installing system-level cpupower-auto (AC/battery auto-switch) script"
@@ -350,43 +209,12 @@ if [[ ! -f /usr/local/bin/cpupower-auto.sh ]]; then
 
 set -euo pipefail
 
-USB_EXCLUDE=()
-
-set_usb_autosuspend() {
-    local timeout="$1"
-    for dev in /sys/bus/usb/devices/*/power/control; do
-        [[ -e "$dev" ]] || continue
-        local devdir
-        devdir=$(dirname "$dev")
-        local id_vendor id_product usb_id
-        id_vendor=$(cat "$devdir/idVendor" 2>/dev/null || echo "")
-        id_product=$(cat "$devdir/idProduct" 2>/dev/null || echo "")
-        usb_id="${id_vendor}:${id_product}"
-
-        local skip=0
-        for excluded in "${USB_EXCLUDE[@]:-}"; do
-            [[ "$usb_id" == "$excluded" ]] && skip=1 && break
-        done
-        [[ "$skip" -eq 1 ]] && continue
-
-        if [[ "$timeout" -eq 0 ]]; then
-            echo "on" > "$dev" 2>/dev/null || true
-        else
-            echo "auto" > "$dev" 2>/dev/null || true
-            echo "$((timeout * 1000))" > "$devdir/power/autosuspend_delay_ms" 2>/dev/null || true
-        fi
-    done
-}
-
-set_pcie_aspm() {
-    local policy="$1"
-    if [[ -w /sys/module/pcie_aspm/parameters/policy ]]; then
-        echo "$policy" > /sys/module/pcie_aspm/parameters/policy 2>/dev/null || true
-    fi
-}
-
 STATE_FILE="/tmp/cpupower-switcher-current"
 OVERRIDE_FILE="/tmp/cpupower-manual-override"
+LOCK_FILE="/tmp/cpupower-auto.lock"
+
+exec 9>"$LOCK_FILE"
+flock -n 9 || exit 0
 
 if [[ -f "$OVERRIDE_FILE" ]]; then
     LAST_OVERRIDE=$(cat "$OVERRIDE_FILE")
@@ -404,13 +232,11 @@ fi
 
 ON_AC=$(cat "$AC_STATUS_PATH/online" 2>/dev/null || echo "1")
 
-AVAILABLE_GOVERNORS=$(cpupower frequency-info -g 2>/dev/null | grep -oP '(?<=governors: ).*' || true)
-if echo "$AVAILABLE_GOVERNORS" | grep -qw schedutil; then
-    BALANCED_GOVERNOR="schedutil"
-elif echo "$AVAILABLE_GOVERNORS" | grep -qw ondemand; then
-    BALANCED_GOVERNOR="ondemand"
-else
-    BALANCED_GOVERNOR="powersave"
+TARGET_MODE="powersave"
+[[ "$ON_AC" == "1" ]] && TARGET_MODE="performance"
+
+if [[ -f "$STATE_FILE" ]] && [[ "$(cat "$STATE_FILE")" == "$TARGET_MODE" ]]; then
+    exit 0
 fi
 
 notify_user() {
@@ -422,23 +248,21 @@ notify_user() {
     [[ -z "$target_uid" ]] && return 0
     sudo -u "$target_user" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${target_uid}/bus" \
         notify-send "Power Mode" "$msg" -t 2000 2>/dev/null || true
-    sudo -u "$target_user" pkill -RTMIN+8 waybar 2>/dev/null || true
+    if pgrep -x waybar &>/dev/null; then
+        sudo -u "$target_user" pkill -RTMIN+8 waybar 2>/dev/null || true
+    fi
 }
 
-if [[ "$ON_AC" == "1" ]]; then
-    cpupower frequency-set -g "$BALANCED_GOVERNOR" &> /dev/null
-    set_usb_autosuspend 0
-    set_pcie_aspm performance
-
-    echo "balanced" > "$STATE_FILE"
-    notify_user "AC connected -> Balanced. USB: full power, PCIe: performance"
+if [[ "$TARGET_MODE" == "performance" ]]; then
+    cpupower frequency-set -g performance &> /dev/null
+    cpupower set -b 1 &> /dev/null || true
+    echo "performance" > "$STATE_FILE"
+    notify_user "AC connected -> Performance"
 else
-    cpupower frequency-set -g "powersave" &> /dev/null
-    set_usb_autosuspend 2
-    set_pcie_aspm powersave
-
+    cpupower frequency-set -g powersave &> /dev/null
+    cpupower set -b 0 &> /dev/null || true
     echo "powersave" > "$STATE_FILE"
-    notify_user "On battery -> Power Saver. USB: autosuspend, PCIe: powersave"
+    notify_user "On battery -> Power Saver"
 fi
 SCRIPT_EOF
     sudo chmod +x /usr/local/bin/cpupower-auto.sh
@@ -451,8 +275,8 @@ log "Installing udev rule for AC plug/unplug auto power-switching"
 UDEV_RULE="/etc/udev/rules.d/99-cpupower-auto.rules"
 if [[ ! -f "$UDEV_RULE" ]]; then
     sudo tee "$UDEV_RULE" > /dev/null <<'EOF'
-SUBSYSTEM=="power_supply", ATTR{online}=="0", RUN+="/usr/local/bin/cpupower-auto.sh"
-SUBSYSTEM=="power_supply", ATTR{online}=="1", RUN+="/usr/local/bin/cpupower-auto.sh"
+SUBSYSTEM=="power_supply", ACTION=="change", ATTR{online}=="0", RUN+="/usr/local/bin/cpupower-auto.sh"
+SUBSYSTEM=="power_supply", ACTION=="change", ATTR{online}=="1", RUN+="/usr/local/bin/cpupower-auto.sh"
 EOF
     sudo udevadm control --reload-rules
     log "  udev rule installed and reloaded"
@@ -460,26 +284,12 @@ else
     log "udev rule already exists, skipping"
 fi
 
-log "Granting passwordless sudo for cpupower frequency-set (needed for manual keybind switching)"
-SUDOERS_FILE="/etc/sudoers.d/cpupower"
-if [[ ! -f "$SUDOERS_FILE" ]]; then
-    TMP_SUDOERS=$(mktemp)
-    echo "$USER ALL=(root) NOPASSWD: /usr/bin/cpupower frequency-set*" > "$TMP_SUDOERS"
-    if sudo visudo -cf "$TMP_SUDOERS"; then
-        sudo install -m 0440 "$TMP_SUDOERS" "$SUDOERS_FILE"
-        log "  sudoers rule installed at $SUDOERS_FILE"
-    else
-        warn "Generated sudoers rule failed validation, skipping (cpupower-switcher will prompt for password)"
-    fi
-    rm -f "$TMP_SUDOERS"
-else
-    log "sudoers rule for cpupower already exists, skipping"
-fi
+log "Applying default mode (performance)"
+sudo cpupower frequency-set -g performance &> /dev/null || warn "Initial cpupower run failed, check manually after reboot"
+sudo cpupower set -b 1 &> /dev/null || true
+echo "performance" > /tmp/cpupower-switcher-current
 
-log "Running initial power-detection (sets governor/USB/PCIe based on current AC status)"
-sudo /usr/local/bin/cpupower-auto.sh || warn "Initial cpupower-auto run failed, check manually after reboot"
-
-log "Disabling rtw89 power save (fixes lag/disconnect on RTL8852BE/AE/CE wifi)"
+log "Disabling rtw89 power save"
 RTW89_CONF="/etc/modprobe.d/rtw89.conf"
 if lspci -k 2>/dev/null | grep -qi "rtw89"; then
     if [[ ! -f "$RTW89_CONF" ]] || ! grep -q "disable_ps_mode=1" "$RTW89_CONF" 2>/dev/null; then
@@ -492,7 +302,7 @@ else
     log "No rtw89 wifi device detected, skipping"
 fi
 
-log "Configuring iwd (WiFi) for automatic DHCP"
+log "Configuring iwd"
 IWD_CONF="/etc/iwd/main.conf"
 sudo mkdir -p /etc/iwd
 if [[ ! -f "$IWD_CONF" ]]; then
@@ -510,7 +320,7 @@ elif ! grep -q "EnableNetworkConfiguration=true" "$IWD_CONF"; then
         printf "\n[General]\nEnableNetworkConfiguration=true\n" | sudo tee -a "$IWD_CONF" > /dev/null
     fi
 else
-    log "iwd already configured for DHCP, skipping"
+    log "iwd already configured, skipping"
 fi
 
 if ! grep -q "^\[Scan\]" "$IWD_CONF" 2>/dev/null; then
@@ -521,77 +331,38 @@ else
     log "iwd periodic scan already disabled, skipping"
 fi
 
-log "Unblocking rfkill (in case it's blocked after install)"
+log "Unblocking rfkill"
 sudo rfkill unblock all 2>/dev/null || true
 
-log "Enabling iwd service"
+log "Enabling iwd"
 sudo systemctl enable --now iwd
 
-log "Enabling systemd-resolved (fix DNS for iwd connections)"
+log "Enabling systemd-resolved"
 sudo systemctl enable --now systemd-resolved
 sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
-log "Enabling seatd service"
+log "Enabling seatd.service"
 sudo systemctl enable --now seatd.service || true
 sudo usermod -aG seat "$USER" || true
 
 log "Enabling switcheroo-control.service"
 sudo systemctl enable --now switcheroo-control.service
 
-log "Disablling getty service"
+log "Disablling getty@tty1.service"
 sudo systemctl disable getty@tty1.service
 
 log "Enabling ly.service"
 sudo systemctl enable ly@tty1.service
 
-log "Enabling reflector timer"
+log "Enabling reflector.timer"
 sudo systemctl enable --now reflector.timer || true
 
-log "Setting up MPD (Music Player Daemon)"
-MPD_CONFIG_DIR="$HOME/.config/mpd"
-mkdir -p "$MPD_CONFIG_DIR/playlists" "$HOME/Music"
-
-if [[ ! -f "$MPD_CONFIG_DIR/mpd.conf" ]]; then
-    cat > "$MPD_CONFIG_DIR/mpd.conf" <<EOF
-music_directory    "$HOME/Music"
-playlist_directory "$MPD_CONFIG_DIR/playlists"
-db_file            "$MPD_CONFIG_DIR/database"
-log_file           "$MPD_CONFIG_DIR/log"
-pid_file           "$MPD_CONFIG_DIR/pid"
-state_file         "$MPD_CONFIG_DIR/state"
-sticker_file       "$MPD_CONFIG_DIR/sticker.sql"
-
-bind_to_address    "127.0.0.1"
-port               "6600"
-EOF
-    log "  created $MPD_CONFIG_DIR/mpd.conf"
-else
-    log "mpd.conf already exists, skipping"
-fi
+log "Enabling battery-notify.timer"
+sudo systemctl --user enable --now battery-notify.timer
 
 log "Enabling mpd user service"
 systemctl --user enable --now mpd
 
-log "Generating default rmpc config and theme"
-RMPC_CONFIG_DIR="$HOME/.config/rmpc"
-mkdir -p "$RMPC_CONFIG_DIR"
-
-if [[ ! -f "$RMPC_CONFIG_DIR/config.ron" ]]; then
-    rmpc config > "$RMPC_CONFIG_DIR/config.ron"
-    log "  created $RMPC_CONFIG_DIR/config.ron"
-else
-    log "rmpc config.ron already exists, skipping"
-fi
-
-if [[ ! -f "$RMPC_CONFIG_DIR/theme.ron" ]]; then
-    rmpc theme > "$RMPC_CONFIG_DIR/theme.ron"
-    log "  created $RMPC_CONFIG_DIR/theme.ron"
-else
-    log "rmpc theme.ron already exists, skipping"
-fi
-
-log "Note: album art in rmpc works via foot's native Sixel support, no extra image backend needed."
-
-log "Setup complete. Rebooting in 3 seconds — press Ctrl+C now to cancel."
-sleep 3
+log "Setup complete. Rebooting in 5 seconds — press Ctrl+C now to cancel."
+sleep 5
 sudo reboot
