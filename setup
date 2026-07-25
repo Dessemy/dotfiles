@@ -29,7 +29,7 @@ fi
 log "Installing desktop and CLI packages via yay"
 yay -S --needed --noconfirm \
     ly seatd hyprland xdg-desktop-portal-hyprland qt5-wayland qt6-wayland smartmontools grim slurp nodejs npm openssh wget \
-    brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cpupower cliphist \
+    brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cliphist cpupower \
     foot herdr-bin neovim yazi bluetui impala wiremix btop cava ttyper mpv rmpc mpc mpd 7zip zip unzip \
     zsh starship zoxide jq fd fzf fastfetch eza bat ripgrep imagemagick ffmpeg \
     ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
@@ -37,12 +37,12 @@ yay -S --needed --noconfirm \
     qutebrowser obs-studio vesktop-bin freedownloadmanager-bin steam lutris \
     fuzzel waybar mako nwg-look
 
-log "Removing pre-existing nvidia-open (conflicts with nvidia-open-dkms)"
+log "Removing pre-existing nvidia-open"
 if pacman -Qq nvidia-open &>/dev/null; then
     sudo pacman -Rdd --noconfirm nvidia-open 2>/dev/null || true
 fi
 
-log "Installing AMD and Nvidia (open kernel module, dkms) drivers"
+log "Installing AMD and Nvidia drivers"
 sudo pacman -S --needed --noconfirm \
     mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon \
     vulkan-icd-loader lib32-vulkan-icd-loader \
@@ -56,7 +56,7 @@ else
     log "No splash option found in $PRESET_FILE, skipping"
 fi
 
-log "Setting up hibernation support (swapfile + resume)"
+log "Setting up hibernation support"
 SWAPFILE="/swapfile"
 
 if swapon --show=NAME --noheadings 2>/dev/null | grep -qx "$SWAPFILE"; then
@@ -119,7 +119,7 @@ fi
 log "Regenerating initramfs for linux-zen"
 sudo mkinitcpio -P
 
-log "Disabling systemd-boot menu (timeout 0)"
+log "Disabling systemd-boot menu"
 LOADER_CONF="/boot/loader/loader.conf"
 if [[ -f "$LOADER_CONF" ]]; then
     if grep -q "^timeout" "$LOADER_CONF"; then
@@ -183,23 +183,98 @@ if [[ -d "$HOME/.config/scripts" ]]; then
     fi
 fi
 
-log "Granting passwordless sudo for cpupower (needed for manual keybind switching)"
+log "Installing cpupower-set-mode wrapper"
+if [[ ! -f /usr/local/bin/cpupower-set-mode.sh ]]; then
+    sudo tee /usr/local/bin/cpupower-set-mode.sh > /dev/null <<'SCRIPT_EOF'
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+MODE="${1:-}"
+STATE_FILE="/tmp/cpupower-switcher-current"
+
+set_usb() {
+    local control="$1" delay="$2"
+    for dev in /sys/bus/usb/devices/*/power/control; do
+        [[ -e "$dev" ]] && echo "$control" > "$dev" 2>/dev/null || true
+    done
+    for dev in /sys/bus/usb/devices/*/power/autosuspend_delay_ms; do
+        [[ -e "$dev" ]] && echo "$delay" > "$dev" 2>/dev/null || true
+    done
+}
+
+set_pcie_aspm() {
+    if [[ -w /sys/module/pcie_aspm/parameters/policy ]]; then
+        echo "$1" > /sys/module/pcie_aspm/parameters/policy 2>/dev/null || true
+    fi
+}
+
+set_disk_apm() {
+    for host in /sys/class/scsi_host/*/link_power_management_policy; do
+        [[ -e "$host" ]] && echo "$1" > "$host" 2>/dev/null || true
+    done
+}
+
+set_sound() {
+    if [[ -w /sys/module/snd_hda_intel/parameters/power_save ]]; then
+        echo "$1" > /sys/module/snd_hda_intel/parameters/power_save 2>/dev/null || true
+    fi
+}
+
+case "$MODE" in
+    performance)
+        cpupower frequency-set -g performance &> /dev/null
+        cpupower set -b 1 &> /dev/null || true
+        set_usb on 0
+        set_pcie_aspm performance
+        set_disk_apm max_performance
+        set_sound 0
+        ;;
+    balanced)
+        cpupower frequency-set -g performance &> /dev/null
+        cpupower set -b 1 &> /dev/null || true
+        set_usb auto 5000
+        set_pcie_aspm default
+        set_disk_apm medium_power
+        set_sound 1
+        ;;
+    powersave)
+        cpupower frequency-set -g powersave &> /dev/null
+        cpupower set -b 0 &> /dev/null || true
+        set_usb auto 2000
+        set_pcie_aspm powersupersave
+        set_disk_apm min_power
+        set_sound 1
+        ;;
+    *)
+        echo "Usage: cpupower-set-mode.sh performance|balanced|powersave" >&2
+        exit 1
+        ;;
+esac
+
+echo "$MODE" > "$STATE_FILE"
+chmod 666 "$STATE_FILE" 2>/dev/null || true
+SCRIPT_EOF
+    sudo chmod +x /usr/local/bin/cpupower-set-mode.sh
+    log "  created /usr/local/bin/cpupower-set-mode.sh"
+else
+    log "/usr/local/bin/cpupower-set-mode.sh already exists, skipping"
+fi
+
+log "Granting passwordless sudo for cpupower-set-mode.sh"
 SUDOERS_FILE="/etc/sudoers.d/cpupower"
 if [[ ! -f "$SUDOERS_FILE" ]]; then
     TMP_SUDOERS=$(mktemp)
-    {
-        echo "$USER ALL=(root) NOPASSWD: /usr/bin/cpupower frequency-set*"
-        echo "$USER ALL=(root) NOPASSWD: /usr/bin/cpupower set*"
-    } > "$TMP_SUDOERS"
+    echo "$USER ALL=(root) NOPASSWD: /usr/local/bin/cpupower-set-mode.sh *" > "$TMP_SUDOERS"
     if sudo visudo -cf "$TMP_SUDOERS"; then
         sudo install -m 0440 "$TMP_SUDOERS" "$SUDOERS_FILE"
         log "  sudoers rule installed at $SUDOERS_FILE"
     else
-        warn "Generated sudoers rule failed validation, skipping (cpupower-switcher will prompt for password)"
+        warn "Generated sudoers rule failed validation, skipping"
     fi
     rm -f "$TMP_SUDOERS"
 else
-    log "sudoers rule for cpupower already exists, skipping"
+    log "sudoers rule for cpupower-set-mode already exists, skipping"
 fi
 
 log "Installing system-level cpupower-auto (AC/battery auto-switch) script"
@@ -233,7 +308,7 @@ fi
 ON_AC=$(cat "$AC_STATUS_PATH/online" 2>/dev/null || echo "1")
 
 TARGET_MODE="powersave"
-[[ "$ON_AC" == "1" ]] && TARGET_MODE="performance"
+[[ "$ON_AC" == "1" ]] && TARGET_MODE="balanced"
 
 if [[ -f "$STATE_FILE" ]] && [[ "$(cat "$STATE_FILE")" == "$TARGET_MODE" ]]; then
     exit 0
@@ -253,15 +328,11 @@ notify_user() {
     fi
 }
 
-if [[ "$TARGET_MODE" == "performance" ]]; then
-    cpupower frequency-set -g performance &> /dev/null
-    cpupower set -b 1 &> /dev/null || true
-    echo "performance" > "$STATE_FILE"
-    notify_user "AC connected -> Performance"
+/usr/local/bin/cpupower-set-mode.sh "$TARGET_MODE"
+
+if [[ "$TARGET_MODE" == "balanced" ]]; then
+    notify_user "AC connected -> Balanced"
 else
-    cpupower frequency-set -g powersave &> /dev/null
-    cpupower set -b 0 &> /dev/null || true
-    echo "powersave" > "$STATE_FILE"
     notify_user "On battery -> Power Saver"
 fi
 SCRIPT_EOF
@@ -284,10 +355,10 @@ else
     log "udev rule already exists, skipping"
 fi
 
-log "Applying default mode (performance)"
-sudo cpupower frequency-set -g performance &> /dev/null || warn "Initial cpupower run failed, check manually after reboot"
-sudo cpupower set -b 1 &> /dev/null || true
-echo "performance" > /tmp/cpupower-switcher-current
+log "Applying default mode"
+sudo /usr/local/bin/cpupower-set-mode.sh balanced || warn "Initial cpupower-set-mode run failed, check manually after reboot"
+touch /tmp/cpupower-manual-override
+chmod 666 /tmp/cpupower-manual-override 2>/dev/null || true
 
 log "Disabling rtw89 power save"
 RTW89_CONF="/etc/modprobe.d/rtw89.conf"
