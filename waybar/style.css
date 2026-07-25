@@ -62,11 +62,11 @@ window#waybar {
 }
 
 #custom-power-mode.balanced {
-  color: #a6e3a1;
+  color: #89b4fa;
 }
 
 #custom-power-mode.powersave {
-  color: #89b4fa;
+  color: #a6e3a1;
 }
 
 tooltip {
