@@ -33,17 +33,30 @@ fi
 
 log "Installing packages via yay"
 yay -S --needed --noconfirm \
-    ly seatd hyprland xdg-desktop-portal-hyprland qt5-wayland qt6-wayland smartmontools systemd-resolvconf wireguard-tools grim slurp nodejs npm openssh wget \
-    brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cliphist cpupower \
-    foot herdr-bin neovim yazi bluetui impala wiremix btop cava ttyper mpv rmpc mpc mpd 7zip zip unzip \
-    zsh starship zoxide jq fd fzf fastfetch eza bat ripgrep imagemagick ffmpeg \
-    ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
-    hyprlock hyprsunset hyprpicker hyprpaper hyprpolkitagent \
-    qutebrowser obs-studio vesktop-bin freedownloadmanager-bin steam lutris \
-    fuzzel waybar mako nwg-look \
-    mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon \
-    vulkan-icd-loader lib32-vulkan-icd-loader \
-    nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
+ly seatd hyprland xdg-desktop-portal-hyprland qt5-wayland qt6-wayland smartmontools systemd-resolvconf wireguard-tools grim slurp nodejs npm openssh wget \
+brightnessctl playerctl reflector libnotify libqalculate switcheroo-control wl-clipboard cliphist cpupower \
+foot herdr-bin neovim yazi bluetui impala wiremix btop cava ttyper mpv rmpc mpc mpd \
+zsh starship zoxide jq fd fzf fastfetch eza bat ripgrep imagemagick ffmpeg 7zip zip unzip \
+ttf-firacode-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
+hyprlock hyprsunset hyprpicker hyprpaper hyprpolkitagent \
+qutebrowser obs-studio vesktop-bin freedownloadmanager-bin steam lutris \
+fuzzel waybar mako nwg-look \
+nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings \
+mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon \
+vulkan-icd-loader lib32-vulkan-icd-loader
+
+log "Copying dotfiles configs into ~/.config"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_DIRS=(btop fastfetch foot fuzzel herdr hypr mako mpd rmpc systemd qutebrowser scripts waybar yazi nvim zsh)
+mkdir -p "$HOME/.config"
+for dir in "${CONFIG_DIRS[@]}"; do
+    if [[ -d "$SCRIPT_DIR/$dir" ]]; then
+        cp -r "$SCRIPT_DIR/$dir" "$HOME/.config/$dir"
+        log "  copied $dir -> ~/.config/$dir"
+    else
+        warn "Config folder '$dir' not found next to setup.sh (expected $SCRIPT_DIR/$dir), skipping"
+    fi
+done
 
 log "Removing splash logo from linux-zen UKI preset"
 PRESET_FILE="/etc/mkinitcpio.d/linux-zen.preset"
@@ -135,14 +148,8 @@ sudo touch "$ZSHENV"
 if ! grep -q "XDG_CONFIG_HOME" "$ZSHENV" 2>/dev/null; then
     sudo tee -a "$ZSHENV" > /dev/null <<'EOF'
 export PATH="$HOME/.config/scripts:$PATH"
-
-if [[ -z "$XDG_CONFIG_HOME" ]]; then
-    export XDG_CONFIG_HOME="$HOME/.config"
-fi
-
-if [[ -d "$XDG_CONFIG_HOME/zsh" ]]; then
-    export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
-fi
+export XDG_CONFIG_HOME="$HOME/.config"
+export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 EOF
 else
     log "zshenv already configured, skipping"
