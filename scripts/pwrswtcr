@@ -10,6 +10,12 @@ declare -A LABELS=(
     ["powersave"]="Power Saver"
 )
 
+declare -A APP_NAMES=(
+    ["performance"]="CPU Performance"
+    ["balanced"]="CPU Balanced"
+    ["powersave"]="CPU Power Saver"
+)
+
 set_mode() {
     local mode="$1"
 
@@ -21,7 +27,7 @@ set_mode() {
     chmod 666 "$STATE_FILE" 2>/dev/null || true
     date +%s > /tmp/cpupower-manual-override 2>/dev/null || true
     chmod 666 /tmp/cpupower-manual-override 2>/dev/null || true
-    notify-send -u normal "CPU Power Mode" "${LABELS[$mode]}" -t 1500
+    notify-send -u normal -a "${APP_NAMES[$mode]}" "CPU Power Mode" "${LABELS[$mode]}" -t 1500
 
     if pgrep -x waybar &>/dev/null; then
         pkill -RTMIN+8 waybar 2>/dev/null || true
