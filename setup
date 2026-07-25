@@ -134,6 +134,7 @@ ZSHENV="/etc/zsh/zshenv"
 sudo touch "$ZSHENV"
 if ! grep -q "XDG_CONFIG_HOME" "$ZSHENV" 2>/dev/null; then
     sudo tee -a "$ZSHENV" > /dev/null <<'EOF'
+export PATH="$HOME/.config/scripts:$PATH"
 
 if [[ -z "$XDG_CONFIG_HOME" ]]; then
     export XDG_CONFIG_HOME="$HOME/.config"
@@ -145,13 +146,6 @@ fi
 EOF
 else
     log "zshenv already configured, skipping"
-fi
-
-if [[ -d "$HOME/.config/scripts" ]]; then
-    log "Adding ~/.config/scripts to PAia /etc/zsh/zshenv"
-    if ! grep -q ".config/scripts" "$ZSHENV" 2>/dev/null; then
-        echo 'export PATH="$HOME/.config/scripts:$PATH"' | sudo tee -a "$ZSHENV" > /dev/null
-    fi
 fi
 
 log "Installing cpupower-set-mode wrapper"
