@@ -60,3 +60,18 @@ border-color=#f38ba8
 background-color=#1e1e2eee
 text-color=#f38ba8
 default-timeout=0
+
+[app-name="CPU Performance"]
+border-color=#f38ba8
+background-color=#1e1e2eee
+text-color=#f38ba8
+
+[app-name="CPU Balanced"]
+border-color=#89b4fa
+background-color=#1e1e2eee
+text-color=#89b4fa
+
+[app-name="CPU Power Saver"]
+border-color=#a6e3a1
+background-color=#1e1e2eee
+text-color=#a6e3a1
