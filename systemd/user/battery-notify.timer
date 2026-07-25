@@ -1,0 +1,10 @@
+[Unit]
+Description=Run battery percentage check every 60 seconds
+
+[Timer]
+OnBootSec=30sec
+OnUnitActiveSec=60sec
+AccuracySec=5sec
+
+[Install]
+WantedBy=timers.target
