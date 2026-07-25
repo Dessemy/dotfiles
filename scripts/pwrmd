@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+STATE_FILE="/tmp/cpupower-switcher-current"
+CURRENT="performance"
+
+if [[ -f "$STATE_FILE" ]]; then
+    CURRENT=$(cat "$STATE_FILE" | tr -d '[:space:]')
+fi
+
+GOVERNOR=$(cpupower frequency-info -p 2>/dev/null | grep -oP '(?<=governor ")[^"]+' || echo "unknown")
+
+case "$CURRENT" in
+    performance)
+        TEXT="󰓅"
+        LABEL="Performance"
+        CLASS="performance"
+        ;;
+    powersave)
+        TEXT="󰾆"
+        LABEL="Power Saver"
+        CLASS="powersave"
+        ;;
+    balanced)
+        TEXT="󰾅"
+        LABEL="Balanced"
+        CLASS="balanced"
+        ;;
+    *)
+        TEXT="?"
+        LABEL="Unknown ($CURRENT)"
+        CLASS="unknown"
+        ;;
+esac
+
+TOOLTIP="Mode: ${LABEL}\nGovernor: ${GOVERNOR}\nSUPER+X to switch modes"
+TOOLTIP_JSON=$(echo "$TOOLTIP" | sed 's/$/\\n/' | tr -d '\n')
+
+printf '{"text": "%s", "tooltip": "%s", "class": "%s", "alt": "%s"}\n' \
+    "$TEXT" "$TOOLTIP_JSON" "$CLASS" "$CURRENT"
