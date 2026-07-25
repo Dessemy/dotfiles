@@ -169,7 +169,7 @@ hl.bind("SUPER + W", hl.dsp.exec_cmd("foot -e wiremix"))
 hl.bind("SUPER + I", hl.dsp.exec_cmd("foot -e impala"))
 hl.bind("SUPER + TAB", hl.dsp.exec_cmd("~/.config/scripts/fuzl"))
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("~/.config/scripts/wybr"))
-hl.bind("SUPER + X", hl.dsp.exec_cmd("~/.config/scripts/cpupower"))
+hl.bind("SUPER + X", hl.dsp.exec_cmd("~/.config/scripts/pwrswtcr"))
 hl.bind("SUPER + W + RIGHT", hl.dsp.exec_cmd("~/.config/scripts/wallswitcher next"))
 hl.bind("SUPER + W + LEFT", hl.dsp.exec_cmd("~/.config/scripts/wallswitcher prev"))
 hl.bind("SUPER + ALT + C",
