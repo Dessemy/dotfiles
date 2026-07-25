@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+STATE_FILE="/tmp/cpupower-switcher-current"
+
+declare -A LABELS=(
+    ["performance"]="Performance"
+    ["balanced"]="Balanced"
+    ["powersave"]="Power Saver"
+)
+
+set_mode() {
+    local mode="$1"
+    local governor="$mode"
+
+    if [[ "$mode" == "balanced" ]]; then
+        governor="performance"
+    fi
+
+    sudo cpupower frequency-set -g "$governor" &> /dev/null
+
+    if [[ "$mode" == "performance" ]] || [[ "$mode" == "balanced" ]]; then
+        sudo cpupower set -b 1 &> /dev/null || true
+    else
+        sudo cpupower set -b 0 &> /dev/null || true
+    fi
+
+    echo "$mode" > "$STATE_FILE"
+    date +%s > /tmp/cpupower-manual-override
+    notify-send -u normal "CPU Power Mode" "${LABELS[$mode]}" -t 1500
+
+    if pgrep -x waybar &>/dev/null; then
+        pkill -RTMIN+8 waybar 2>/dev/null || true
+    fi
+}
+
+CURRENT="performance"
+if [[ -f "$STATE_FILE" ]]; then
+    CURRENT=$(cat "$STATE_FILE")
+fi
+
+if [[ $# -ge 1 ]]; then
+    case "$1" in
+        performance|balanced|powersave)
+            set_mode "$1"
+            ;;
+        *)
+            echo "Invalid argument. Use: performance | balanced | powersave"
+            exit 1
+            ;;
+    esac
+    exit 0
+fi
+
+case "$CURRENT" in
+    performance) set_mode "balanced" ;;
+    balanced)    set_mode "powersave" ;;
+    powersave)   set_mode "performance" ;;
+    *)           set_mode "performance" ;;
+esac
