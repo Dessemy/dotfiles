@@ -12,22 +12,15 @@ declare -A LABELS=(
 
 set_mode() {
     local mode="$1"
-    local governor="$mode"
 
-    if [[ "$mode" == "balanced" ]]; then
-        governor="performance"
+    sudo /usr/local/bin/cpupower-set-mode.sh "$mode"
+
+    if ! echo "$mode" > "$STATE_FILE" 2>/dev/null; then
+        notify-send -u critical "CPU Power Mode" "Failed to write state file, check permissions $STATE_FILE"
     fi
-
-    sudo cpupower frequency-set -g "$governor" &> /dev/null
-
-    if [[ "$mode" == "performance" ]] || [[ "$mode" == "balanced" ]]; then
-        sudo cpupower set -b 1 &> /dev/null || true
-    else
-        sudo cpupower set -b 0 &> /dev/null || true
-    fi
-
-    echo "$mode" > "$STATE_FILE"
-    date +%s > /tmp/cpupower-manual-override
+    chmod 666 "$STATE_FILE" 2>/dev/null || true
+    date +%s > /tmp/cpupower-manual-override 2>/dev/null || true
+    chmod 666 /tmp/cpupower-manual-override 2>/dev/null || true
     notify-send -u normal "CPU Power Mode" "${LABELS[$mode]}" -t 1500
 
     if pgrep -x waybar &>/dev/null; then
