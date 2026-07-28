@@ -1,0 +1,5 @@
+#!/bin/sh
+
+CLIPSTART='wl-paste --type text --watch cliphist store </dev/null & wl-paste --type image --watch cliphist store </dev/null &'
+
+slstatus -s | dwl -s "$CLIPSTART"
