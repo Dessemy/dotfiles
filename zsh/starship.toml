@@ -156,3 +156,4 @@ format = "[ $symbol( $version) ]($style)"
 [docker_context]
 symbol = ""
 format = "[ $symbol( $context) ]($style)"
+-_-
